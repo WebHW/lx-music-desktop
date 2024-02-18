@@ -11,7 +11,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./main/webpack.config.dev')
-// const rendererConfig = require('./renderer/webpack.config.dev')
+const rendererConfig = require('./renderer/webpack.config.dev')
 // const rendererLyricConfig = require('./renderer-lyric/webpack.config.dev')
 // const rendererScriptConfig = require('./renderer-scripts/webpack.config.dev')
 
@@ -20,16 +20,62 @@ const { Arch } = require('electron-builder')
 
 let electronProcess = null
 let manualRestart = false
-// let hotMiddlewareRenderer
+let hotMiddlewareRenderer
 // let hotMiddlewareRendererLyric
 
 
+function startRenderer() {
+  return new Promise((resolve, reject) => {
+    // rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
+    // rendererConfig.mode = 'development'
+    const compiler = webpack(rendererConfig)
+    hotMiddlewareRenderer = webpackHotMiddleware(compiler, {
+      log: false,
+      heartbeat: 2500,
+    })
+
+    compiler.hooks.compilation.tap('compilation', compilation => {
+      // console.log(Object.keys(compilation.hooks))
+      HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync('html-webpack-plugin-after-emit', (data, cb) => {
+        hotMiddlewareRenderer.publish({ action: 'reload' })
+        cb()
+      })
+    })
+
+    // compiler.hooks.done.tap('done', stats => {
+    //   // logStats('Renderer', 'Compile done')
+    //   // logStats('Renderer', stats)
+    // })
+
+    const server = new WebpackDevServer({
+      port: 9080,
+      hot: true,
+      historyApiFallback: true,
+      static: {
+        directory: path.join(__dirname, '../src/common/theme/images'),
+        publicPath: '/theme_images',
+      },
+      client: {
+        logging: 'warn',
+        overlay: true,
+      },
+      setupMiddlewares(middlewares, devServer) {
+        devServer.app.use(hotMiddlewareRenderer)
+        devServer.middleware.waitUntilValid(resolve)
+
+        return middlewares
+      },
+    }, compiler)
+
+    server.start()
+  })
+}
+
 function startMain(){
   return new Promise((resolve, reject) => {
-
     const compiler = webpack(mainConfig)
     compiler.hooks.watchRun.tapAsync('watch-run', (compilation,done) => {
-      // hotMiddlewareRenderer.publish({actions:'compiling'})
+      hotMiddlewareRenderer.publish({action:'compiling'})
       // hotMiddlewareRendererLlyric.publish({actions:'compiling'})
       done()
     })
@@ -96,29 +142,36 @@ const logs = [
 function electronLog(data, color) {
   let log = data.toString()
   if (/[0-9A-z]+/.test(log)) {
-    if (color == 'red' && typeof log == 'string' && logs.some(l => log.includes(l))) return
+    // 抑制某些无关的报错日志
+    if (color == 'red' && typeof log === 'string' && logs.some(l => log.includes(l))) return
+
     console.log(chalk[color](log))
   }
 
 }
 function init() {
   const Spinnies = require('spinnies')
-  const spinnies = new Spinnies({color:'blue'})
-  spinnies.add('main', {text: 'Main compiling'})
+  const spinners = new Spinnies({ color: 'blue' })
+  spinners.add('main', { text: 'main compiling' })
+  spinners.add('renderer', { text: 'renderer compiling' })
 
   function handleSuccess(name) {
-    spinnies.succeed('main', {text:name + ' compiling success!'})
+    spinners.succeed(name, { text: name + ' compile success!' })
   }
 
   function handleFail(name) {
-    spinnies.fail('main', {text:name + ' compiling fail!'})
+    spinners.fail(name, { text: name + ' compile fail!' })
   }
   // replaceLib({electronPlatformName: process.platform,arch: Arch[process.arch]})
 
   Promise.all([
-    startMain().then(()=>handleSuccess('Main')).catch(()=>handleFail('Main')),
+    startRenderer().then(() => handleSuccess('renderer')).catch((err) => {
+      console.error(err.message)
+      return handleFail('renderer')
+    }),
+    startMain().then(() => handleSuccess('main')).catch(() => handleFail('main')),
   ]).then(startElectron).catch(err=>{
-    console.log(err)
+    console.error(err)
   })
 }
 

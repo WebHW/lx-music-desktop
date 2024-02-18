@@ -5,12 +5,12 @@ const isDev = process.env.NODE_ENV === 'development'
 
 module.exports = {
   target: 'electron-main',
-  output:{
+  output: {
     filename: '[name].js',
     library: {
-      type: 'commonjs2'
+      type: 'commonjs2',
     },
-    path: path.resolve(__dirname, '../../dist')
+    path: path.join(__dirname, '../../dist')
   },
   externals: {
     'font-list':'font-list',
@@ -22,8 +22,8 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@main': path.resolve(__dirname, '../../src/main'),
-      '@common': path.resolve(__dirname, '../../src/common'),
+      '@main': path.join(__dirname, '../../src/main'),
+      '@common': path.join(__dirname, '../../src/common'),
     },
     extensions: ['.tsx','.ts','.js', '.mjs', '.json', '.node'],
   },
