@@ -12,16 +12,16 @@ const webpackHotMiddleware = require('webpack-hot-middleware')
 
 const mainConfig = require('./main/webpack.config.dev')
 const rendererConfig = require('./renderer/webpack.config.dev')
-// const rendererLyricConfig = require('./renderer-lyric/webpack.config.dev')
-// const rendererScriptConfig = require('./renderer-scripts/webpack.config.dev')
+const rendererLyricConfig = require('./renderer-lyric/webpack.config.dev')
+const rendererScriptConfig = require('./renderer-scripts/webpack.config.dev')
 
 const { Arch } = require('electron-builder')
-// const replaceLib = require('./build-before-pack')
+const replaceLib = require('./build-before-pack')
 
 let electronProcess = null
 let manualRestart = false
 let hotMiddlewareRenderer
-// let hotMiddlewareRendererLyric
+let hotMiddlewareRendererLyric
 
 
 function startRenderer() {
@@ -71,12 +71,74 @@ function startRenderer() {
   })
 }
 
+function startRendererLyric(){
+  return new Promise((resolve, reject) => {
+    // rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
+    // rendererConfig.mode = 'development'
+    const compiler = webpack(rendererLyricConfig)
+    hotMiddlewareRendererLyric = webpackHotMiddleware(compiler, {
+      log: false,
+      heartbeat: 2500,
+    })
+
+    compiler.hooks.compilation.tap('compilation', compilation => {
+      // console.log(Object.keys(compilation.hooks))
+      HtmlWebpackPlugin.getHooks(compilation).beforeEmit.tapAsync('html-webpack-plugin-after-emit', (data, cb) => {
+        hotMiddlewareRendererLyric.publish({ action: 'reload' })
+        cb()
+      })
+    })
+
+    // compiler.hooks.done.tap('done', stats => {
+    //   // logStats('Renderer', 'Compile done')
+    //   // logStats('Renderer', stats)
+    // })
+
+    const server = new WebpackDevServer({
+      port: 9081,
+      hot: true,
+      historyApiFallback: true,
+      // static: {
+      //   directory: path.join(__dirname, '../'),
+      // },
+      client: {
+        logging: 'warn',
+        overlay: true,
+      },
+      setupMiddlewares(middlewares, devServer) {
+        devServer.app.use(hotMiddlewareRenderer)
+        devServer.middleware.waitUntilValid(resolve)
+        return middlewares
+      },
+    }, compiler)
+
+    server.start()
+
+  })
+}
+
+function startRendererScripts() {
+  return new Promise((resolve, reject) => {
+    // mainConfig.entry.main = [path.join(__dirname, '../src/main/index.dev.js')].concat(mainConfig.entry.main)
+    // mainConfig.mode = 'development'
+    const compiler = webpack(rendererScriptConfig)
+
+    compiler.watch({}, (err, stats) => {
+      if (err) {
+        console.log(err)
+        return
+      }
+      resolve()
+    })
+  })
+}
 function startMain(){
   return new Promise((resolve, reject) => {
     const compiler = webpack(mainConfig)
-    compiler.hooks.watchRun.tapAsync('watch-run', (compilation,done) => {
-      hotMiddlewareRenderer.publish({action:'compiling'})
-      // hotMiddlewareRendererLlyric.publish({actions:'compiling'})
+
+    compiler.hooks.watchRun.tapAsync('watch-run', (compilation, done) => {
+      hotMiddlewareRenderer.publish({ action: 'compiling' })
+      hotMiddlewareRendererLyric.publish({ action: 'compiling' })
       done()
     })
 
@@ -154,7 +216,8 @@ function init() {
   const spinners = new Spinnies({ color: 'blue' })
   spinners.add('main', { text: 'main compiling' })
   spinners.add('renderer', { text: 'renderer compiling' })
-
+  spinners.add('renderer-lyric', { text: 'renderer-lyric compiling' })
+  spinners.add('renderer-scripts', { text: 'renderer-scripts compiling' })
   function handleSuccess(name) {
     spinners.succeed(name, { text: name + ' compile success!' })
   }
@@ -162,15 +225,23 @@ function init() {
   function handleFail(name) {
     spinners.fail(name, { text: name + ' compile fail!' })
   }
-  // replaceLib({electronPlatformName: process.platform,arch: Arch[process.arch]})
+  replaceLib({electronPlatformName: process.platform,arch: Arch[process.arch]})
 
   Promise.all([
     startRenderer().then(() => handleSuccess('renderer')).catch((err) => {
       console.error(err.message)
       return handleFail('renderer')
     }),
+    startRendererLyric().then(() => handleSuccess('renderer-lyric')).catch((err) => {
+      console.error(err.message)
+      return handleFail('renderer-lyric')
+    }),
+    startRendererScripts().then(() => handleSuccess('renderer-scripts')).catch((err) => {
+      console.error(err.message)
+      return handleFail('renderer-scripts')
+    }),
     startMain().then(() => handleSuccess('main')).catch(() => handleFail('main')),
-  ]).then(startElectron).catch(err=>{
+  ]).then(startElectron).catch(err => {
     console.error(err)
   })
 }

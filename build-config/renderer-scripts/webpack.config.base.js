@@ -1,48 +1,52 @@
 const path = require('path')
 const ESLintPlugin = require('eslint-webpack-plugin')
 
-const isDev = process.env.NODE_ENV === 'development'
-
 module.exports = {
-  target: 'electron-main',
+  target: 'electron-renderer',
+  entry: {
+    'user-api-preload': path.join(__dirname, '../../src/main/modules/userApi/renderer/preload.js'),
+  },
   output: {
     filename: '[name].js',
     library: {
       type: 'commonjs2',
     },
     path: path.join(__dirname, '../../dist'),
-  },
-  externals: {
-    'font-list': 'font-list',
-    'better-sqlite3': 'better-sqlite3',
-    'electron-font-manager': 'electron-font-manager',
-    bufferutil: 'bufferutil',
-    'utf-8-validate': 'utf-8-validate',
-    'qrc_decode.node': isDev ? path.join(__dirname, '../../build/Release/qrc_decode.node') : path.join('../build/Release/qrc_decode.node'),
+    publicPath: '',
   },
   resolve: {
     alias: {
+      '@root': path.join(__dirname, '../../src'),
       '@main': path.join(__dirname, '../../src/main'),
       '@renderer': path.join(__dirname, '../../src/renderer'),
       '@lyric': path.join(__dirname, '../../src/renderer-lyric'),
+      '@static': path.join(__dirname, '../../src/static'),
       '@common': path.join(__dirname, '../../src/common'),
     },
-    extensions: ['.tsx', '.ts', '.js', '.mjs', '.json', '.node'],
+    extensions: ['.tsx', '.ts', '.js', '.json', '.node'],
   },
   module: {
     rules: [
       {
-        test: /\.node$/,
-        use: 'node-loader',
+        test: /\.tsx?$/,
+        exclude: /node_modules/,
+        use: {
+          loader: 'ts-loader',
+          options: {
+            appendTsSuffixTo: [/\.vue$/],
+          },
+        },
       },
       {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/,
+        test: /\.node$/,
+        use: 'node-loader',
       },
     ],
   },
   plugins: [
-    new ESLintPlugin(),
+    new ESLintPlugin({
+      extensions: ['js'],
+      formatter: require('eslint-formatter-friendly'),
+    }),
   ],
 }
