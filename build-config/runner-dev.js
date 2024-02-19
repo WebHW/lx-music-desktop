@@ -3,7 +3,6 @@ process.env.NODE_ENV = 'development'
 const chalk = require('chalk')
 const electron = require('electron')
 const path = require('path')
-
 const { spawn } = require('child_process')
 const webpack = require('webpack')
 const WebpackDevServer = require('webpack-dev-server')
@@ -14,7 +13,6 @@ const mainConfig = require('./main/webpack.config.dev')
 const rendererConfig = require('./renderer/webpack.config.dev')
 const rendererLyricConfig = require('./renderer-lyric/webpack.config.dev')
 const rendererScriptConfig = require('./renderer-scripts/webpack.config.dev')
-
 const { Arch } = require('electron-builder')
 const replaceLib = require('./build-before-pack')
 
@@ -71,7 +69,7 @@ function startRenderer() {
   })
 }
 
-function startRendererLyric(){
+function startRendererLyric() {
   return new Promise((resolve, reject) => {
     // rendererConfig.entry.renderer = [path.join(__dirname, 'dev-client')].concat(rendererConfig.entry.renderer)
     // rendererConfig.mode = 'development'
@@ -113,7 +111,6 @@ function startRendererLyric(){
     }, compiler)
 
     server.start()
-
   })
 }
 
@@ -132,8 +129,11 @@ function startRendererScripts() {
     })
   })
 }
-function startMain(){
+
+function startMain() {
   return new Promise((resolve, reject) => {
+    // mainConfig.entry.main = [path.join(__dirname, '../src/main/index.dev.js')].concat(mainConfig.entry.main)
+    // mainConfig.mode = 'development'
     const compiler = webpack(mainConfig)
 
     compiler.hooks.watchRun.tapAsync('watch-run', (compilation, done) => {
@@ -148,14 +148,17 @@ function startMain(){
         return
       }
 
-      if(electronProcess && electronProcess.kill){
+      // logStats('Main', stats)
+
+      if (electronProcess && electronProcess.kill) {
         manualRestart = true
         process.kill(electronProcess.pid)
         electronProcess = null
         startElectron()
+
         setTimeout(() => {
           manualRestart = false
-        },5000)
+        }, 5000)
       }
 
       resolve()
@@ -189,7 +192,6 @@ function startElectron() {
   electronProcess.on('close', () => {
     if (!manualRestart) process.exit()
   })
-  
 }
 
 const logs = [
@@ -200,7 +202,6 @@ const logs = [
   '"Electron sandbox_bundle.js script failed to run"',
   '"TypeError: object null is not iterable (cannot read property Symbol(Symbol.iterator))",',
 ]
-
 function electronLog(data, color) {
   let log = data.toString()
   if (/[0-9A-z]+/.test(log)) {
@@ -209,8 +210,8 @@ function electronLog(data, color) {
 
     console.log(chalk[color](log))
   }
-
 }
+
 function init() {
   const Spinnies = require('spinnies')
   const spinners = new Spinnies({ color: 'blue' })
@@ -221,11 +222,10 @@ function init() {
   function handleSuccess(name) {
     spinners.succeed(name, { text: name + ' compile success!' })
   }
-
   function handleFail(name) {
     spinners.fail(name, { text: name + ' compile fail!' })
   }
-  replaceLib({electronPlatformName: process.platform,arch: Arch[process.arch]})
+  replaceLib({ electronPlatformName: process.platform, arch: Arch[process.arch] })
 
   Promise.all([
     startRenderer().then(() => handleSuccess('renderer')).catch((err) => {
