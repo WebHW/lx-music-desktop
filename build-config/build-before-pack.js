@@ -40,7 +40,6 @@ const replaceSqliteLib = async(electronNodeAbi, arch) => {
   await fsPromises.copyFile(filePath, targetPath)
 }
 
-
 const replaceQrcDecodeLib = async(electronNodeAbi, platform, arch) => {
   console.log('replace qrc_decode lib...', platform, electronNodeAbi, qrc_decode_fileNameMap[platform][arch])
   const filePath = path.join(__dirname, `./lib/qrc_decode_electron-v${electronNodeAbi}-${qrc_decode_fileNameMap[platform][arch]}.node`)
@@ -50,6 +49,7 @@ const replaceQrcDecodeLib = async(electronNodeAbi, platform, arch) => {
   else await fsPromises.mkdir(targetDir, { recursive: true })
   await fsPromises.copyFile(filePath, targetPath)
 }
+
 
 module.exports = async(context) => {
   const { electronPlatformName, arch } = context
@@ -77,4 +77,3 @@ module.exports = async(context) => {
       break
   }
 }
-

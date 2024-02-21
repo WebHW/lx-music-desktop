@@ -2,11 +2,13 @@
 import fs from 'node:fs'
 import { checkPath, joinPath } from '@common/utils/nodejs'
 import { log } from '@common/utils'
+import { APP_EVENT_NAMES, STORE_NAMES } from '@common/constants'
+
+
 /**
  * 读取配置文件
  * @returns
  */
-import { APP_EVENT_NAMES } from '@common/constants'
 export const parseDataFile = async<T>(name: string): Promise<T | null> => {
   const path = joinPath(global.lxOldDataPath, name)
   if (await checkPath(path)) {
@@ -57,3 +59,50 @@ export const migrateHotKey = async() => {
   }
   return null
 }
+
+
+/**
+ * 迁移 v2.0.0 之前的 data.json
+ * @returns
+ */
+export const migrateDataJson = async() => {
+  const path = joinPath(global.lxDataPath, 'data.json')
+  if (await checkPath(path)) return
+  const oldDataFile = await parseDataFile<{
+    searchHistoryList: string[]
+    playInfo?: any
+    listPrevSelectId?: any
+    listPosition?: any
+    listUpdateInfo?: any
+  }>('data.json')
+  if (!oldDataFile) return
+  const newData: any = {}
+  if (oldDataFile.searchHistoryList) newData.searchHistoryList = oldDataFile.searchHistoryList
+  if (oldDataFile.playInfo) newData.playInfo = oldDataFile.playInfo
+  if (oldDataFile.listPrevSelectId) newData.listPrevSelectId = oldDataFile.listPrevSelectId
+  if (oldDataFile.listPosition) newData.listScrollPosition = oldDataFile.listPosition
+  if (oldDataFile.listUpdateInfo) newData.listUpdateInfo = oldDataFile.listUpdateInfo
+  await fs.promises.writeFile(path, JSON.stringify(newData)).catch(err => {
+    log.error(err)
+  })
+}
+
+
+// 迁移文件
+const migrateFile = async(name: string, targetName: string) => {
+  let path = joinPath(global.lxDataPath, targetName)
+  let oldPath = joinPath(global.lxOldDataPath, name)
+  if (!await checkPath(path) && await checkPath(oldPath)) {
+    await fs.promises.copyFile(oldPath, path).catch(err => {
+      log.error(err)
+    }).catch(err => {
+      log.error(err)
+    })
+  }
+}
+
+/**
+ * 迁移 v2.0.0 之前的user api
+ * @returns
+ */
+export const migrateUserApi = async() => migrateFile('userApi.json', STORE_NAMES.USER_API + '.json')
