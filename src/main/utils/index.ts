@@ -22,9 +22,9 @@ export const initSetting = async() => {
     await migrateDataJson()
   }
 
-  // console.log(setting)
-  updateSetting(setting, true)
+  return updateSetting(setting, true)
 }
+
 /**
  * 初始化快捷键设置
  */
@@ -63,7 +63,7 @@ export const initHotKey = async() => {
   }
 }
 
-export const mergeSetting = (originSetting: LX.AppSetting, targetSetting: Partial<LX.AppSetting> | null): {
+export const mergeSetting = (originSetting: LX.AppSetting, targetSetting: Partial<LX.AppSetting> | undefined): {
   setting: LX.AppSetting
   updatedSettingKeys: Array<keyof LX.AppSetting>
   updatedSetting: Partial<LX.AppSetting>
@@ -79,11 +79,11 @@ export const mergeSetting = (originSetting: LX.AppSetting, targetSetting: Partia
   }
 }
 
+
 export const updateSetting = (setting?: Partial<LX.AppSetting>, isInit: boolean = false) => {
   const electronStore_config = getStore(STORE_NAMES.APP_SETTINGS)
 
   let originSetting: LX.AppSetting
-
   if (isInit) {
     setting &&= migrateSetting(setting)
     originSetting = { ...defaultSetting }
@@ -94,4 +94,5 @@ export const updateSetting = (setting?: Partial<LX.AppSetting>, isInit: boolean 
   result.setting.version = defaultSetting.version
 
   electronStore_config.set({ version: result.setting.version, setting: result.setting })
+  return result
 }

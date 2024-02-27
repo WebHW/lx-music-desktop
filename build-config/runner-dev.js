@@ -173,7 +173,7 @@ function startElectron() {
     // 'NODE_ENV=development',
     path.join(__dirname, '../dist/main.js'),
   ]
-
+  console.log('starting electron', process.argv)
   // detect yarn or npm and process commandline args accordingly
   if (process.env.npm_execpath.endsWith('yarn.js')) {
     args = args.concat(process.argv.slice(3))

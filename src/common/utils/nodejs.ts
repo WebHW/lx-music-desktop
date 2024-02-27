@@ -7,12 +7,12 @@ export const joinPath = (...paths: string[]): string => path.join(...paths)
  * @param {*} path 路径
  */
 export const checkPath = async(path: string): Promise<boolean> => {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     if (!path) {
       resolve(false)
       return
     }
-    fs.access(path, fs.constants.F_OK, (err: any) => {
+    fs.access(path, fs.constants.F_OK, err => {
       if (err) {
         resolve(false)
         return

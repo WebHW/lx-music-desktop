@@ -3,7 +3,7 @@ import fs from 'node:fs'
 import { checkPath, joinPath } from '@common/utils/nodejs'
 import { log } from '@common/utils'
 import { APP_EVENT_NAMES, STORE_NAMES } from '@common/constants'
-
+import { filterMusicList, toNewMusicInfo } from '@common/utils/tools'
 
 /**
  * 读取配置文件
@@ -20,6 +20,64 @@ export const parseDataFile = async<T>(name: string): Promise<T | null> => {
   }
   return null
 }
+
+
+interface OldUserListInfo {
+  name: string
+  id: string
+  source?: LX.OnlineSource
+  sourceListId?: string
+  locationUpdateTime?: number
+  list: any[]
+}
+/**
+ * 迁移 v2.0.0 之前的 list data
+ * @returns
+ */
+export const migrateDBData = async() => {
+  let playList = await parseDataFile<{ defaultList?: { list: any[] }, loveList?: { list: any[] }, tempList?: { list: any[] }, userList?: OldUserListInfo[] }>('playList.json')
+  let listDataAll: LX.ListDataFull = {
+    defaultList: [],
+    loveList: [],
+    userList: [],
+    tempList: [],
+  }
+  let isRequireSave = false
+  if (playList) {
+    if (playList.defaultList) { listDataAll.defaultList = filterMusicList(playList.defaultList.list.map(m => toNewMusicInfo(m))) }
+    if (playList.loveList) listDataAll.loveList = filterMusicList(playList.loveList.list.map(m => toNewMusicInfo(m)))
+    if (playList.tempList) listDataAll.tempList = filterMusicList(playList.tempList.list.map(m => toNewMusicInfo(m)))
+    if (playList.userList) {
+      listDataAll.userList = playList.userList.map(l => {
+        return {
+          ...l,
+          locationUpdateTime: l.locationUpdateTime ?? null,
+          list: filterMusicList(l.list.map(m => toNewMusicInfo(m))),
+        }
+      })
+    }
+    isRequireSave = true
+  } else {
+    const config = await parseDataFile<{ list?: { defaultList?: any[], loveList?: any[] } }>('config.json')
+    if (config?.list) {
+      const list = config.list
+      if (list.defaultList) listDataAll.defaultList = filterMusicList(list.defaultList.map(m => toNewMusicInfo(m)))
+      if (list.loveList) listDataAll.loveList = filterMusicList(list.loveList.map(m => toNewMusicInfo(m)))
+      isRequireSave = true
+    }
+  }
+
+  if (isRequireSave) await global.lx.worker.dbService.listDataOverwrite(listDataAll)
+
+  const lyricData = await parseDataFile<Record<string, LX.AddMusicLocationType.lyricInfo>>('lyrics_edited.json')
+
+  if (lyricData) {
+    for await (const [id, info] of Object.entries(lyricData)) {
+      await global.lx.worker.dbService.editedLyricAdd(id, info)
+    }
+  }
+}
+
 const hotKeyNameMap = {
   mainWindow: APP_EVENT_NAMES.winMainName,
   winLyric: APP_EVENT_NAMES.winLyricName,
@@ -105,4 +163,5 @@ const migrateFile = async(name: string, targetName: string) => {
  * 迁移 v2.0.0 之前的user api
  * @returns
  */
+
 export const migrateUserApi = async() => migrateFile('userApi.json', STORE_NAMES.USER_API + '.json')
