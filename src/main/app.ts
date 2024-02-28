@@ -64,3 +64,9 @@ export const initAppSetting = async() => {
 
   isInitialized ||= true
 }
+
+
+export const quitApp = () => {
+  global.lx.isSkipTrayQuit = true
+  closeWindow()
+}
