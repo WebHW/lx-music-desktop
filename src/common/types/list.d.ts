@@ -3,10 +3,13 @@ declare namespace LX {
     interface UserListInfo {
       id: string
       name: string
-      source: string
+      // list: LX.Music.MusicInfo[]
+      source?: LX.OnlineSource
       sourceListId?: string
-      locationUpdateTime?: number | null
+      // position?: number
+      locationUpdateTime: number | null
     }
+
 
     interface UserListInfoFull extends UserListInfo {
       list: LX.Music.MusicInfo[]
@@ -15,7 +18,7 @@ declare namespace LX {
       defaultList: LX.Music.MusicInfo[]
       loveList: LX.Music.MusicInfo[]
       userList: UserListInfoFull[]
-      template: LX.Music.MusicInfo[]
+      tempList: LX.Music.MusicInfo[]
     }
   }
 }

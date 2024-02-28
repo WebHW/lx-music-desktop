@@ -17,3 +17,10 @@ export const STORE_NAMES = {
   SOUND_EFFECT: 'sound_effect',
 } as const
 
+export const LIST_IDS = {
+  DEFAULT: 'default',
+  LOVE: 'love',
+  TEMP: 'temp',
+  DOWNLOAD: 'download',
+  PLAY_LATER: 'null',
+} as const

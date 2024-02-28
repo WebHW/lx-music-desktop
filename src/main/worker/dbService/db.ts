@@ -45,4 +45,6 @@ export const init = (lxDataPath: string): boolean | null => {
   return dbFileExists
 }
 
+// 获取数据库实例
+export const getDB = (): Database.Database => db
 

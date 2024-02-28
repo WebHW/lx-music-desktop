@@ -8,6 +8,7 @@ import createWorkers from './worker'
 import { dialog } from 'electron'
 import { openDirInExplorer } from '@common/utils/electron'
 import { migrateDBData } from './utils/migrate'
+import { log } from '@common/utils'
 
 let isInitialized = false
 export const initAppSetting = async() => {
@@ -57,7 +58,7 @@ export const initAppSetting = async() => {
     }
     global.lx.appSetting = (await initSetting()).setting
     if (!dbFileExists) await migrateDBData().catch(err => { log.error(err) })
-    initTheme()
+    // initTheme()
   }
   // global.lx.theme = getTheme()
 

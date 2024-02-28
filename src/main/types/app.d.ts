@@ -39,7 +39,7 @@ declare global {
   var lxDataPath: string
   var lxOldDataPath: string
   var lx: Lx
-
+  var appWorder: AppWorder
 }
 
 

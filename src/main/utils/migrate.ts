@@ -36,7 +36,7 @@ interface OldUserListInfo {
  */
 export const migrateDBData = async() => {
   let playList = await parseDataFile<{ defaultList?: { list: any[] }, loveList?: { list: any[] }, tempList?: { list: any[] }, userList?: OldUserListInfo[] }>('playList.json')
-  let listDataAll: LX.ListDataFull = {
+  let listDataAll: LX.List.ListDataFull = {
     defaultList: [],
     loveList: [],
     userList: [],
@@ -69,7 +69,7 @@ export const migrateDBData = async() => {
 
   if (isRequireSave) await global.lx.worker.dbService.listDataOverwrite(listDataAll)
 
-  const lyricData = await parseDataFile<Record<string, LX.AddMusicLocationType.lyricInfo>>('lyrics_edited.json')
+  const lyricData = await parseDataFile<Record<string, LX.Music.LyricInfo>>('lyrics_edited.json')
 
   if (lyricData) {
     for await (const [id, info] of Object.entries(lyricData)) {
