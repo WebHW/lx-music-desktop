@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events'
-
+import { updateSetting } from '@main/utils'
 // import { saveAppHotKeyConfig, updateSetting } from '@main/utils'
 // function updateSetting(setting: any) {
 //   return {
@@ -26,6 +26,26 @@ export class Event extends EventEmitter {
 
   theme_change() {
     this.emit('theme_change')
+  }
+
+  system_theme_change(isDark: boolean) {
+    this.emit('system_theme_change', isDark)
+  }
+
+  updated_config(keys: Array<keyof LX.AppSetting>, setting: Partial<LX.AppSetting>) {
+    this.emit('updated_config', keys, setting)
+  }
+
+  /**
+   * 更新配置
+   *  @param setting 新设置
+  */
+  update_config(setting: Partial<LX.AppSetting>) {
+    const { setting: newSetting, updatedSettingKeys, updatedSetting } = updateSetting(setting)
+    global.lx.appSetting = newSetting
+    if (!updatedSettingKeys.length) return
+    this.emit('updated_config', newSetting)
+    this.updated_config(updatedSettingKeys, updatedSetting)
   }
 
   deeplink() {

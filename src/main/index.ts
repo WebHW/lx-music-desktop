@@ -3,12 +3,16 @@ import './utils/logInit'
 import '@common/error'
 import { initAppSetting } from '@main/app'
 import { isLinux } from '@common/utils'
+import registerModules from '@main/modules'
+
+import registerCommonRenderers from './commonRenderers'
 // 初始化应用
 const init = () => {
   console.log('init')
   void initAppSetting()
     .then(() => {
-      console.log('init1')
+      registerModules()
+      registerCommonRenderers()
     })
 }
 void app.whenReady().then(() => {

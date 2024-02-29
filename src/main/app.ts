@@ -1,15 +1,40 @@
 
 import path from 'node:path'
 import { renameSync } from 'fs'
-import { initHotKey, initSetting } from './utils'
+import { getTheme, initHotKey, initSetting } from './utils'
 import defaultSetting from '@common/defaultSetting'
-import { createAppEvent, createListEvent, createDislikeEvent } from '@main/event'
+import { createAppEvent, createDislikeEvent, createListEvent } from '@main/event'
 import createWorkers from './worker'
 import { dialog } from 'electron'
 import { openDirInExplorer } from '@common/utils/electron'
 import { migrateDBData } from './utils/migrate'
 import { log } from '@common/utils'
 import { closeWindow } from './modules/winMain'
+
+
+const initTheme = () => {
+  global.lx.theme = getTheme()
+  const themeConfigKeys = ['theme.id', 'theme.lightId', 'theme.darkId']
+  global.lx.event_app.on('updated_config', (keys) => {
+    let requireUpdate = false
+    for (const key of keys) {
+      if (themeConfigKeys.includes(key)) {
+        requireUpdate = true
+        break
+      }
+    }
+    if (requireUpdate) {
+      global.lx.theme = getTheme()
+      global.lx.event_app.theme_change()
+    }
+  })
+  global.lx.event_app.on('system_theme_change', () => {
+    if (global.lx.appSetting['theme.id'] == 'auto') {
+      global.lx.theme = getTheme()
+      global.lx.event_app.theme_change()
+    }
+  })
+}
 
 let isInitialized = false
 export const initAppSetting = async() => {
@@ -59,7 +84,7 @@ export const initAppSetting = async() => {
     }
     global.lx.appSetting = (await initSetting()).setting
     if (!dbFileExists) await migrateDBData().catch(err => { log.error(err) })
-    // initTheme()
+    initTheme()
   }
   // global.lx.theme = getTheme()
 

@@ -28,5 +28,5 @@ export function compareVer(currentVer: string, targetVer: string): -1 | 0 | 1 {
   }
   return 0
 }
-
+export const isUrl = (path: string) => /https?:\/\//.test(path)
 export * from './common'

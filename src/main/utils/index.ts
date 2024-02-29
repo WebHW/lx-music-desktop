@@ -5,7 +5,67 @@ import { STORE_NAMES } from '@common/constants'
 import defaultHotKey from '@common/defaultHotKey'
 import defaultSetting from '@common/defaultSetting'
 import { migrateDataJson, migrateHotKey, migrateUserApi, parseDataFile } from './migrate'
+import { nativeTheme } from 'electron'
+import themes from '@common/theme/index.json'
+import { isUrl } from '@common/utils'
 
+let userThemes: LX.Theme[]
+
+export const copyTheme = (theme: LX.Theme): LX.Theme => {
+  return {
+    ...theme,
+    config: {
+      ...theme.config,
+      extInfo: { ...theme.config.extInfo },
+      themeColors: { ...theme.config.themeColors },
+    },
+  }
+}
+
+export const getTheme = () => {
+  // fs.promises.readdir()
+  const shouldUseDarkColors = nativeTheme.shouldUseDarkColors
+  let themeId = global.lx.appSetting['theme.id'] == 'auto'
+    ? shouldUseDarkColors
+      ? global.lx.appSetting['theme.darkId']
+      : global.lx.appSetting['theme.lightId']
+    : global.lx.appSetting['theme.id']
+  // themeId = 'naruto'
+  // themeId = 'pink'
+  // themeId = 'black'
+  let theme = themes.find(theme => theme.id == themeId)
+  if (!theme) {
+    userThemes = getStore(STORE_NAMES.THEME).get('themes') as LX.Theme[] | null ?? []
+    theme = userThemes.find(theme => theme.id == themeId)
+    if (theme) {
+      if (theme.config.extInfo['--background-image'] != 'none') {
+        theme = copyTheme(theme)
+        theme.config.extInfo['--background-image'] =
+          isUrl(theme.config.extInfo['--background-image'])
+            ? `url(${theme.config.extInfo['--background-image']})`
+            : `url(file:///${encodePath(joinPath(global.lxDataPath, 'theme_images', theme.config.extInfo['--background-image']))})`
+      }
+    } else {
+      themeId = global.lx.appSetting['theme.id'] == 'auto' && shouldUseDarkColors ? 'black' : 'green'
+      theme = themes.find(theme => theme.id == themeId) as LX.Theme
+    }
+  }
+
+  const colors: Record<string, string> = {
+    ...theme.config.themeColors,
+    ...theme.config.extInfo,
+  }
+
+  return {
+    shouldUseDarkColors,
+    theme: {
+      id: global.lx.appSetting['theme.id'],
+      name: theme.name,
+      isDark: theme.isDark,
+      colors,
+    },
+  }
+}
 
 /**
  * 初始化设置
