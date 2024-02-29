@@ -23,6 +23,23 @@ export class Event extends EventEmitter {
   app_inited() {
     this.emit('app_inited')
   }
+
+  theme_change() {
+    this.emit('theme_change')
+  }
+
+  deeplink() {
+    this.emit('deeplink')
+  }
+
+
+  main_window_close() {
+    this.emit('main_window_close')
+  }
+
+  main_window_focus() {
+    this.emit('main_window_focus')
+  }
 }
 
 

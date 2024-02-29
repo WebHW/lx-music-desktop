@@ -9,6 +9,7 @@ import { dialog } from 'electron'
 import { openDirInExplorer } from '@common/utils/electron'
 import { migrateDBData } from './utils/migrate'
 import { log } from '@common/utils'
+import { closeWindow } from './modules/winMain'
 
 let isInitialized = false
 export const initAppSetting = async() => {

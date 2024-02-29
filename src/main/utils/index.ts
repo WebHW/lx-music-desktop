@@ -79,6 +79,11 @@ export const mergeSetting = (originSetting: LX.AppSetting, targetSetting: Partia
   }
 }
 
+export const openDevTools = (webContents: Electron.WebContents) => {
+  webContents.openDevTools({
+    mode: 'undocked',
+  })
+}
 
 export const updateSetting = (setting?: Partial<LX.AppSetting>, isInit: boolean = false) => {
   const electronStore_config = getStore(STORE_NAMES.APP_SETTINGS)
