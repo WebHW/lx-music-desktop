@@ -32,6 +32,15 @@ export class Event extends EventEmitter {
     this.emit('system_theme_change', isDark)
   }
 
+  main_window_ready_to_show() {
+    this.emit('main_window_ready_to_show')
+  }
+
+  main_window_show() {
+    this.emit('main_window_show')
+  }
+
+
   updated_config(keys: Array<keyof LX.AppSetting>, setting: Partial<LX.AppSetting>) {
     this.emit('updated_config', keys, setting)
   }
@@ -48,10 +57,14 @@ export class Event extends EventEmitter {
     this.updated_config(updatedSettingKeys, updatedSetting)
   }
 
-  deeplink() {
-    this.emit('deeplink')
+  deeplink(link: string) {
+    this.emit('deeplink', link)
   }
 
+
+  main_window_hide() {
+    this.emit('main_window_hide')
+  }
 
   main_window_close() {
     this.emit('main_window_close')
@@ -59,6 +72,10 @@ export class Event extends EventEmitter {
 
   main_window_focus() {
     this.emit('main_window_focus')
+  }
+
+  main_window_blur() {
+    this.emit('main_window_blur')
   }
 }
 

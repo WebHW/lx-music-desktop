@@ -1,6 +1,3 @@
-// 下面语句TS不识别 import os from 'node:os' ;process.platform;需要下面语句标识
-/* eslint-disable */
-/// <reference types="node" resolution-mode="require"/>
 // import './app_setting'
 
 declare namespace LX {

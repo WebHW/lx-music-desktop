@@ -1,13 +1,37 @@
 
 import getStore from '@main/utils/store'
 import migrateSetting from '@common/utils/migrateSetting'
-import { STORE_NAMES } from '@common/constants'
+import { STORE_NAMES, URL_SCHEME_RXP } from '@common/constants'
 import defaultHotKey from '@common/defaultHotKey'
 import defaultSetting from '@common/defaultSetting'
 import { migrateDataJson, migrateHotKey, migrateUserApi, parseDataFile } from './migrate'
 import { nativeTheme } from 'electron'
 import themes from '@common/theme/index.json'
 import { isUrl } from '@common/utils'
+
+export const parseEnvParams = (): { cmdParams: LX.CmdParams, deeplink: string | null } => {
+  const cmdParams: LX.CmdParams = {}
+  let deeplink = null
+  const rx = /^-\w+/
+  for (let param of process.argv) {
+    if (URL_SCHEME_RXP.test(param)) {
+      deeplink = param
+    }
+
+    if (!rx.test(param)) continue
+    param = param.substring(1)
+    let index = param.indexOf('=')
+    if (index < 0) {
+      cmdParams[param] = true
+    } else {
+      cmdParams[param.substring(0, index)] = param.substring(index + 1)
+    }
+  }
+  return {
+    cmdParams,
+    deeplink,
+  }
+}
 
 let userThemes: LX.Theme[]
 

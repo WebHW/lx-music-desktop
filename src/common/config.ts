@@ -5,6 +5,7 @@ export interface WindowSize {
   height: number
 }
 
+export const navigationUrlWhiteList: RegExp[] = []
 export const windowSizeList: WindowSize[] = [
   {
     id: 0,

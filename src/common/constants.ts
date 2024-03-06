@@ -1,3 +1,4 @@
+export const URL_SCHEME_RXP = /^lxmusic:\/\//
 
 export const APP_EVENT_NAMES = {
   winMainName: 'win_main',

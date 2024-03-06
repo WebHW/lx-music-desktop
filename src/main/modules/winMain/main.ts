@@ -88,3 +88,26 @@ export const closeWindow = () => {
   if (!browserWindow) return
   browserWindow.close()
 }
+
+export const hideWindow = () => {
+  if (!browserWindow) return
+  browserWindow.hide()
+}
+
+export const showWindow = () => {
+  if (!browserWindow) return
+  if (browserWindow.isMinimized()) {
+    browserWindow.restore()
+  }
+  if (browserWindow.isVisible()) {
+    browserWindow.focus()
+  } else {
+    browserWindow.show()
+  }
+}
+
+export const isExistWindow = (): boolean => !!browserWindow
+export const isShowWindow = (): boolean => {
+  if (!browserWindow) return false
+  return browserWindow.isVisible() && (isWin ? true : browserWindow.isFocused())
+}
