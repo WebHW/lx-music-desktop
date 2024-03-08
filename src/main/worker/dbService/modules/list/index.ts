@@ -1,8 +1,12 @@
 import { LIST_IDS } from '@common/constants'
-import { arrPush } from '@common/utils/common'
+import { arrPush, arrUnshift } from '@common/utils/common'
 import {
-  deleteUserLists, overwriteListData, queryMusicInfoByListId, queryAllUserList, inertUserLists,
+  deleteUserLists,
+  overwriteListData,
+  queryMusicInfoByListId,
+  queryAllUserList, inertUserLists,
   updateUserLists as updateUserListsFromDB,
+  insertMusicInfoListAndRefreshOrder,
 } from './dbHelper'
 let musicLists = new Map<string, LX.Music.MusicInfo[]>()
 
@@ -166,4 +170,37 @@ export const updateUserLists = (lists: LX.List.UserListInfo[]) => {
   }).filter(Boolean) as LX.DBService.UserListInfo[]
   updateUserListsFromDB(dbLists)
   userLists &&= queryAllUserList()
+}
+
+/**
+ * 批量添加歌曲
+ * @param listId 列表id
+ * @param musicInfos 添加歌曲信息
+ * @param addMusicLocationType 添加在到列表的位置
+*/
+
+export const musicsAdd = (listId: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType) => {
+  let targetList = getListMusics(listId)
+
+  const set = new Set<string>()
+  for (const item of targetList) {
+    set.add(item.id)
+  }
+  musicInfos = musicInfos.filter(item => {
+    if (set.has(item.id)) return false
+    set.add(item.id)
+    return true
+  })
+
+  switch (addMusicLocationType) {
+    case 'top':
+      insertMusicInfoListAndRefreshOrder(toDBMusicInfo(musicInfos, listId), listId, toDBMusicInfo(targetList, listId, musicInfos.length))
+      arrUnshift(targetList, musicInfos)
+      break
+    case 'bottom':
+    default:
+      insertMusicInfoList(toDBMusicInfo(musicInfos, listId, targetList.length))
+      arrPush(targetList, musicInfos)
+      break
+  }
 }

@@ -76,6 +76,20 @@ export class Event extends EventEmitter {
     this.emit('list_update_position', position, ids, isRemote)
     this.list_change()
   }
+
+  /**
+   * 批量添加歌曲到列表
+   * @param listId 列表id
+   * @param musicInfos 添加的歌曲信息
+   * @param addMusicLocationType 添加在列表的位置
+   * @param isRemote 是否属于远程操作
+   * */
+
+  async list_music_add(listId: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType, isRemote: boolean = false) {
+    await global.lx.worker.dbService.musicsAdd(listId, musicInfos, addMusicLocationType)
+    this.emit('list_music_add', listId, musicInfos, addMusicLocationType, isRemote)
+    this.list_change()
+  }
 }
 
 

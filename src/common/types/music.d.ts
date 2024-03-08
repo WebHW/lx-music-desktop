@@ -9,14 +9,14 @@ declare namespace LX {
       size: string | null
       hash: string
     }
-    type _MusicQualityType =
-    Partial<Record<Quality, {
+    type _MusicQualityType = Partial<Record<Quality, {
       size: string | null
     }>>
     type _MusicQualityTypeKg = Partial<Record<Quality, {
       size: string | null
       hash: string
     }>>
+
 
     interface MusicInfoMetaBase {
       songId: string | number // 歌曲ID，mg源为copyrightId，local为文件路径
@@ -34,6 +34,7 @@ declare namespace LX {
       filePath: string
       ext: string
     }
+
 
     interface MusicInfoBase<S = LX.Source> {
       id: string
@@ -57,7 +58,6 @@ declare namespace LX {
       _qualitys: _MusicQualityTypeKg
       hash: string // 歌曲hash
     }
-
     interface MusicInfo_kg extends MusicInfoBase<'kg'> {
       meta: MusicInfoMeta_kg
     }
@@ -67,7 +67,6 @@ declare namespace LX {
       id?: number // 歌曲songId
       albumMid?: string // 歌曲albumMid
     }
-
     interface MusicInfo_tx extends MusicInfoBase<'tx'> {
       meta: MusicInfoMeta_tx
     }
@@ -118,5 +117,6 @@ declare namespace LX {
       id: string
       list: MusicInfoOnline[]
     }
+
   }
 }

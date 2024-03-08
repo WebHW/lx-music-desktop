@@ -20,6 +20,12 @@ declare namespace LX {
     }
     type ListActionUpdate = UserListInfo[]
 
+    interface ListActionMusicAdd {
+      id: string
+      musicInfos: LX.Music.MusicInfo[]
+      addMusicLocationType: LX.AddMusicLocationType
+    }
+
     interface UserListInfoFull extends UserListInfo {
       list: LX.Music.MusicInfo[]
     }

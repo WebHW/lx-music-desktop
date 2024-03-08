@@ -19,8 +19,12 @@ export const registerRendererEvents = (sendEvent: <T=any>(name: string, params?:
     sendEvent<LX.List.ListActionUpdate>(PLAYER_EVENT_NAME.list_update, lists)
   }
 
-  const list_update_position = async(ids: string[], position: number) => {
-    sendEvent<LX.List.ListActionUpdatePosition>(PLAYER_EVENT_NAME.list_update_position, { ids, position })
+  const list_update_position = async(position: number, ids: string[]) => {
+    sendEvent<LX.List.ListActionUpdatePosition>(PLAYER_EVENT_NAME.list_update_position, { position, ids })
+  }
+
+  const list_music_add = async(id: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType) => {
+    sendEvent<LX.List.ListActionMusicAdd>(PLAYER_EVENT_NAME.list_music_add, { id, musicInfos, addMusicLocationType })
   }
 
 
@@ -29,11 +33,13 @@ export const registerRendererEvents = (sendEvent: <T=any>(name: string, params?:
   global.lx.event_list.on('list_remove', list_remove)
   global.lx.event_list.on('list_update', list_update)
   global.lx.event_list.on('list_update_position', list_update_position)
+  global.lx.event_list.on('list_music_add', list_music_add)
   return () => {
     global.lx.event_list.off('list_data_overwrite', list_data_overwrite)
     global.lx.event_list.off('list_create', list_create)
     global.lx.event_list.off('list_remove', list_remove)
     global.lx.event_list.off('list_update', list_update)
     global.lx.event_list.off('list_update_position', list_update_position)
+    global.lx.event_list.off('list_music_add', list_music_add)
   }
 }

@@ -17,6 +17,40 @@ import {
 const idFixRxp = /\.0$/
 
 /**
+ * 批量添加歌曲并刷新排序
+ * @param list 新增歌曲
+ * @param listId 列表Id
+ * @param listAll 原始列表歌曲，列表去重后
+ */
+
+export const insertMusicInfoListAndRefreshOrder = (list: LX.DBService.MusicInfo[], listId: string, listAll: LX.DBService.MusicInfo[]) => {
+  const musicInfoInsertStatement = createMusicInfoInsertStatement()
+  const musicInfoOrderInsertStatement = createMusicInfoOrderInsertStatement()
+  const musicInfoOrderDeleteByListIdStatement = createMusicInfoOrderDeleteByListIdStatement()
+
+  const db = getDB()
+  db.transaction((list: LX.DBService.MusicInfo[], listId: string, listAll: LX.DBService.MusicInfo[]) => {
+    musicInfoOrderDeleteByListIdStatement.run(listId)
+    for (const music of list) {
+      musicInfoInsertStatement.run(music)
+      musicInfoOrderInsertStatement.run({
+        listId: music.listId,
+        musicInfoId: music.id,
+        order: music.order,
+      })
+    }
+
+    for (const music of listAll) {
+      musicInfoOrderInsertStatement.run({
+        listId: music.listId,
+        musicInfoId: music.id,
+        order: music.order,
+      })
+    }
+  })(list, listId, listAll)
+}
+
+/**
  * 批量插入用户列表
  * @param lists 列表
  * @param isClear 是否清空列表

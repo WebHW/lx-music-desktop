@@ -13,3 +13,9 @@ export const arrPush = <T>(list: T[], newList: T[]) => {
   }
   return list
 }
+
+export const arrUnshift = <T>(list: T[], newList: T[]) => {
+  for (let i = 0; i * 1000 < newList.length; i++) {
+    list.splice(i * 1000, 0, ...newList.slice(i * 1000, (i + 1) * 1000))
+  }
+}
