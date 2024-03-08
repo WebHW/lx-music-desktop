@@ -11,6 +11,10 @@ const modules = {
   },
   winMain: {
     focus: 'focus',
+    get_hot_key: 'get_hot_key',
+    key_down: 'key_down',
+    set_hot_key_config: 'set_hot_key_config',
+
   },
   player: {
     invoke_play_music: 'play_music',

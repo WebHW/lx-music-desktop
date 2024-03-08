@@ -94,6 +94,36 @@ export const hideWindow = () => {
   browserWindow.hide()
 }
 
+export const minimize = () => {
+  if (!browserWindow) return
+  browserWindow.minimize()
+}
+export const maximize = () => {
+  if (!browserWindow) return
+  browserWindow.maximize()
+}
+export const unmaximize = () => {
+  if (!browserWindow) return
+  browserWindow.unmaximize()
+}
+export const toggleHide = () => {
+  if (!browserWindow) return
+  browserWindow.isVisible()
+    ? browserWindow.hide()
+    : browserWindow.show()
+}
+export const toggleMinimize = () => {
+  if (!browserWindow) return
+  if (browserWindow.isMinimized()) {
+    if (!browserWindow.isVisible()) {
+      browserWindow.show()
+    }
+    browserWindow.restore()
+    browserWindow.focus()
+  } else {
+    browserWindow.minimize()
+  }
+}
 export const showWindow = () => {
   if (!browserWindow) return
   if (browserWindow.isMinimized()) {

@@ -4,6 +4,7 @@ import { registerRendererEvents as list } from '@main/modules/commonRenderers/li
 import { sendEvent } from '../main'
 
 export * from './app'
+export * from './hotKey'
 
 let isInitialized = false
 export default () => {

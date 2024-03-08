@@ -40,6 +40,9 @@ export class Event extends EventEmitter {
     this.emit('main_window_show')
   }
 
+  hot_key_down(keyInfo: LX.HotKeyDownInfo) {
+    this.emit('hot_key_down', keyInfo)
+  }
 
   updated_config(keys: Array<keyof LX.AppSetting>, setting: Partial<LX.AppSetting>) {
     this.emit('updated_config', keys, setting)

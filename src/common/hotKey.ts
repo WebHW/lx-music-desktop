@@ -9,8 +9,28 @@ const keyName = {
 const hotKey = {
   common: {
     min: {
-      name: 'mini',
+      name: 'min',
       action: 'min',
+      type: '',
+    },
+    min_toggle: {
+      name: 'toggle_min',
+      action: 'toggle_min',
+      type: '',
+    },
+    hide_toggle: {
+      name: 'toggle_hide',
+      action: 'toggle_hide',
+      type: '',
+    },
+    close: {
+      name: 'toggle_close',
+      action: 'toggle_close',
+      type: '',
+    },
+    focusSearchInput: {
+      name: 'focus_search_input',
+      action: 'focus_search_input',
       type: '',
     },
   },
@@ -34,4 +54,5 @@ for (const type of Object.keys(hotKey) as Array<keyof typeof hotKey>) {
 }
 
 export const HOTKEY_PLAYER = hotKey.player
+export const HOTKEY_COMMON = hotKey.common
 
