@@ -1,7 +1,15 @@
 import { app } from 'electron'
 import './utils/logInit'
 import '@common/error'
-import { initAppSetting } from '@main/app'
+import {
+  initGlobalData,
+  initSingleInstanceHandle,
+  applyElectronEnvParams,
+  setUserDataPath,
+  registerDeeplink,
+  listenerAppEvent,
+  initAppSetting,
+} from '@main/app'
 import { isLinux } from '@common/utils'
 import registerModules from '@main/modules'
 
@@ -14,6 +22,13 @@ const init = () => {
       global.lx.event_app.app_inited()
     })
 }
+
+initGlobalData()
+initSingleInstanceHandle()
+applyElectronEnvParams()
+setUserDataPath()
+registerDeeplink(init)
+listenerAppEvent(init)
 void app.whenReady().then(() => {
   isLinux ? setTimeout(init, 300) : init()
 })

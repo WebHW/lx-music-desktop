@@ -16,6 +16,15 @@ declare namespace LX{
       order: number
     }
 
+    interface UserListInfo {
+      id: string
+      name: string
+      source?: LX.OnlineSource
+      sourceListId?: string
+      position: number
+      locationUpdateTime: number | null
+    }
+
     type Lyricnfo = {
       id: string
       type: 'lyric'

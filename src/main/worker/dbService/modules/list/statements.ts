@@ -75,3 +75,45 @@ export const createMusicInfoQueryStatement = () => {
     ORDER BY 0."order" ASC
   `)
 }
+
+
+/**
+ * 创建列表删除语句
+ * @returns 删除语句
+*/
+export const createListDeleteStatement = () => {
+  const db = getDB()
+  return db.prepare<[string]>('DELETE FROM "main"."my_list" WHERE "id"=?')
+}
+
+/**
+ * 创建根据列表id批量伤处音乐信息语句
+ * @returns 删除语句
+*/
+export const createMusicInfoDeleteByListIdStatement = () => {
+  const db = getDB()
+  return db.prepare<[string]>('DELETE FROM "main"."my_list_music_info" WHERE "listId"=?')
+}
+
+/**
+ * 创建根据列表id删除音乐排序语句
+ * @returns 删除语句
+*/
+export const createMusicInfoOrderDeleteByListIdStatement = () => {
+  const db = getDB()
+  return db.prepare<[string]>('DELETE FROM "main"."my_list_music_info_order" WHERE "listId"=?')
+}
+
+
+/**
+ * 创建列表更新语句
+ * @returns 更新语句
+*/
+export const createListUpdateStatement = () => {
+  const db = getDB()
+  return db.prepare<[LX.DBService.UserListInfo]>(`
+  UPDATE "main"."my_list" 
+  SET "name"=@name, "source"=@source, "sourceListId"=@sourceListId,"locationUpdateTime"=@locationUpdateTime
+  WHERE "id"=@id`,
+  )
+}

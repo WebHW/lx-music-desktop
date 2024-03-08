@@ -1,9 +1,89 @@
 import { LIST_IDS } from '@common/constants'
 import { arrPush } from '@common/utils/common'
-import { overwriteListData, queryMusicInfoByListId } from './dbHelper'
+import {
+  deleteUserLists, overwriteListData, queryMusicInfoByListId, queryAllUserList, inertUserLists,
+  updateUserLists as updateUserListsFromDB,
+} from './dbHelper'
 let musicLists = new Map<string, LX.Music.MusicInfo[]>()
 
 let userLists: LX.DBService.UserListInfo[]
+
+/**
+ * 批量更新列表位置
+ * @param position 列表位置
+ * @param ids 列表ids
+ */
+export const updateUserListsPosition = (position: number, ids: string[]) => {
+  userLists ??= queryAllUserList()
+  const newUserLists = [...userLists]
+  const updateLists: LX.DBService.UserListInfo[] = []
+
+  for (let i = newUserLists.length - 1; i >= 0; i--) {
+    if (ids.includes(newUserLists[i].id)) {
+      const list = newUserLists.splice(i, 1)[0]
+      list.locationUpdateTime = Date.now()
+      updateLists.push(list)
+    }
+  }
+  position = Math.min(newUserLists.length, position)
+
+  newUserLists.splice(position, 0, ...updateLists)
+  newUserLists.forEach((list, index) => {
+    list.position = index
+  })
+  inertUserLists(newUserLists, true)
+  userLists = newUserLists
+}
+
+/**
+ * 批量创建列表
+ * @param position 列表位置
+ * @param lists 列表信息
+ */
+
+export const createUserLists = (position: number, lists: LX.List.UserListInfo[]) => {
+  userLists ??= queryAllUserList()
+  if (position < 0 || position > userLists.length) {
+    const newLists: LX.DBService.UserListInfo[] = lists.map((list, index) => {
+      return {
+        ...list,
+        position: position + index,
+      }
+    })
+    inertUserLists(newLists)
+    userLists = [...userLists, ...newLists]
+  } else {
+    const newUserLists = [...userLists]
+    // @ts-expect-error
+    newUserLists.splice(position, 0, ...lists)
+    newUserLists.forEach((list, index) => {
+      list.position = index
+    })
+    inertUserLists(newUserLists, true)
+    userLists = newUserLists
+  }
+}
+/**
+ * 获取所有用户列表
+ * @returns
+ */
+export const getAllUserList = (): LX.List.UserListInfo[] => {
+  userLists ??= queryAllUserList()
+  return userLists.map(list => {
+    const { position, ...newList } = list
+    return newList
+  })
+}
+
+/**
+ * 批量删除列表
+ * @param ids 列表ids
+ */
+
+export const removeUserLists = (ids: string[]) => {
+  deleteUserLists(ids)
+  userLists = queryAllUserList()
+}
 /**
  * 根据列表ID获取列表内歌曲
  * @param listId 列表ID
@@ -68,4 +148,22 @@ export const listDataOverwrite = (myListData: MakeOptional<LX.List.ListDataFull,
   musicLists.set(LIST_IDS.LOVE, listData.loveList)
   musicLists.set(LIST_IDS.TEMP, listData.tempList)
   for (const list of listData.userList) musicLists.set(list.id, list.list)
+}
+
+/**
+ * 批量更新列表信息
+ * @param lists 列表信息
+*/
+export const updateUserLists = (lists: LX.List.UserListInfo[]) => {
+  const positionMap = new Map<string, number>()
+  for (const list of userLists) {
+    positionMap.set(list.id, list.position)
+  }
+  const dbLists: LX.DBService.UserListInfo[] = lists.map(list => {
+    const position = positionMap.get(list.id)
+    if (position == null) return null
+    return { ...list, position }
+  }).filter(Boolean) as LX.DBService.UserListInfo[]
+  updateUserListsFromDB(dbLists)
+  userLists &&= queryAllUserList()
 }

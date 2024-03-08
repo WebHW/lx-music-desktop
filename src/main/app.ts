@@ -1,18 +1,16 @@
-
 import path from 'node:path'
-import { renameSync } from 'fs'
-import { getTheme, initHotKey, initSetting, parseEnvParams } from './utils'
-import defaultSetting from '@common/defaultSetting'
-import { createAppEvent, createDislikeEvent, createListEvent } from '@main/event'
-import createWorkers from './worker'
-import { dialog, app, shell } from 'electron'
-import { encodePath, openDirInExplorer } from '@common/utils/electron'
-import { migrateDBData } from './utils/migrate'
-import { log } from '@common/utils'
-import { closeWindow, isExistWindow as isExistMainWindow, showWindow as showMainWindow } from './modules/winMain'
+import { existsSync, mkdirSync, renameSync } from 'fs'
+import { app, shell, screen, nativeTheme, dialog } from 'electron'
 import { URL_SCHEME_RXP } from '@common/constants'
-import { existsSync, mkdirSync } from 'original-fs'
+import { getTheme, initHotKey, initSetting, parseEnvParams } from './utils'
 import { navigationUrlWhiteList } from '@common/config'
+import defaultSetting from '@common/defaultSetting'
+import { closeWindow, isExistWindow as isExistMainWindow, showWindow as showMainWindow } from './modules/winMain'
+import { createAppEvent, createDislikeEvent, createListEvent } from '@main/event'
+import { isMac, log } from '@common/utils'
+import createWorkers from './worker'
+import { migrateDBData } from './utils/migrate'
+import { encodePath, openDirInExplorer } from '@common/utils/electron'
 
 export const initGlobalData = () => {
   const envParams = parseEnvParams()
@@ -40,7 +38,7 @@ export const initSingleInstanceHandle = () => {
     }
 
     if (isExistMainWindow()) {
-      if (global.envParams.deeplink)global.lx.event_app.deeplink(global.envParams.deeplink)
+      if (global.envParams.deeplink) global.lx.event_app.deeplink(global.envParams.deeplink)
       else showMainWindow()
     } else {
       app.quit()
@@ -53,7 +51,7 @@ export const applyElectronEnvParams = () => {
   if (global.envParams.cmdParams.dha) app.disableHardwareAcceleration()
   if (global.envParams.cmdParams.dhmkh) app.commandLine.appendSwitch('disable-features', 'HardwareMediaKeyHandling')
 
-  if (process.platform === 'linux')app.commandLine.appendSwitch('use-gl', 'desktop')
+  if (process.platform === 'linux') app.commandLine.appendSwitch('use-gl', 'desktop')
 
   app.commandLine.appendSwitch('wm - window - animations - disabled')
 
@@ -69,11 +67,11 @@ export const applyElectronEnvParams = () => {
 export const setUserDataPath = () => {
   // windows平台下如果应用目录下存在 portable 文件夹则将数据存在此文件下
   if (process.platform === 'win32') {
-    const portablePath = path.join(app.getPath('exe'), '/portable')
+    const portablePath = path.join(path.dirname(app.getPath('exe')), '/portable')
     if (existsSync(portablePath)) {
       app.setPath('appData', portablePath)
       const appDataPath = path.join(portablePath, '/userData')
-      if (!existsSync(appDataPath))mkdirSync(appDataPath)
+      if (!existsSync(appDataPath)) mkdirSync(appDataPath)
       app.setPath('userData', appDataPath)
     }
   }
@@ -81,7 +79,7 @@ export const setUserDataPath = () => {
   const userDataPath = app.getPath('userData')
   global.lxOldDataPath = userDataPath
   global.lxDataPath = path.join(userDataPath, 'LxDatas')
-  if (!existsSync(global.lxDataPath))mkdirSync(global.lxDataPath)
+  if (!existsSync(global.lxDataPath)) mkdirSync(global.lxDataPath)
 }
 
 export const registerDeeplink = (startApp: () => void) => {
@@ -102,6 +100,61 @@ export const registerDeeplink = (startApp: () => void) => {
     } else {
       startApp()
     }
+  })
+}
+export const listenerAppEvent = (startApp: () => void) => {
+  app.on('web-contents-created', (event, contents) => {
+    contents.on('will-navigate', (event, navigationUrl) => {
+      if (process.env.NODE_ENV !== 'production') {
+        return
+      }
+      if (!navigationUrlWhiteList.some(url => url.test(navigationUrl))) {
+        event.preventDefault()
+      }
+    })
+
+    contents.setWindowOpenHandler(({ url }) => {
+      if (!/^devtools/.test(url) && /^https?:\/\//.test(url)) {
+        void shell.openExternal(url)
+      }
+      console.log(url)
+      return { action: 'deny' }
+    })
+
+    contents.on('will-attach-webview', (event, webPreferences, params) => {
+      delete webPreferences.preload
+
+      webPreferences.nodeIntegration = false
+      if (!navigationUrlWhiteList.some(url => url.test(params.src))) {
+        event.preventDefault()
+      }
+    })
+
+    contents.session.setSpellCheckerDictionaryDownloadURL('http://0.0.0.0')
+  })
+
+  app.on('activate', () => {
+    if (isExistMainWindow()) {
+      showMainWindow()
+    } else {
+      startApp()
+    }
+  })
+
+  app.on('window-all-closed', () => { if (isMac) return; app.quit() })
+
+  const initScreenParams = () => {
+    global.envParams.workAreaSize = screen.getPrimaryDisplay().workAreaSize
+  }
+
+  app.on('ready', () => {
+    screen.on('display-metrics-changed', initScreenParams)
+    initScreenParams()
+  })
+
+  nativeTheme.addListener('updated', (event: any) => {
+    const themeInfo: Electron.NativeTheme = event.sender
+    global.lx?.event_app.system_theme_change(themeInfo.shouldUseDarkColors)
   })
 }
 
@@ -182,45 +235,6 @@ export const initAppSetting = async() => {
   // global.lx.theme = getTheme()
 
   isInitialized ||= true
-}
-
-export const listenerAppEvent = (startApp: () => void) => {
-  app.on('web-contents-created', (event, contents) => {
-    contents.on('will-navigate', (event, navigationUrl) => {
-      if (process.env.NODE_ENV !== 'production') {
-        return
-      }
-      if (!navigationUrlWhiteList.some(url => url.test(navigationUrl))) {
-        event.preventDefault()
-      }
-    })
-
-    contents.setWindowOpenHandler(({ url }) => {
-      if (!/^devtools/.test(url) && /^https?:\/\//.test(url)) {
-        void shell.openExternal(url)
-      }
-      console.log(url)
-      return { action: 'deny' }
-    })
-
-    contents.on('will-attach-webview', (event, webPreferences, params) => {
-      delete webPreferences.preload
-
-      webPreferences.nodeIntegration = false
-      if (!navigationUrlWhiteList.some(url => url.test(params.src))) {
-        event.preventDefault()
-      }
-      contents.session.setSpellCheckerDictionaryDownloadURL('http://0.0.0.0')
-    })
-  })
-
-  app.on('activate', () => {
-    if (isExistMainWindow()) {
-      showMainWindow()
-    } else {
-      startApp()
-    }
-  })
 }
 
 
