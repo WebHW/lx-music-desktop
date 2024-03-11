@@ -23,6 +23,21 @@ const idFixRxp = /\.0$/
  * @param listId 列表id
  * @param musicInfoOrders 音乐顺序
 */
+/**
+ * 清空列表内歌曲
+ * @param listId 列表id
+ */
+export const removeMusicInfoByListId = (ids: string[]) => {
+  const db = getDB()
+  const musicInfoDeleteByListIdStatement = createMusicInfoDeleteByListIdStatement()
+  const musicInfoOrderDeleteByListIdStatement = createMusicInfoOrderDeleteByListIdStatement()
+  db.transaction((ids: string[]) => {
+    for (const id of ids) {
+      musicInfoDeleteByListIdStatement.run(id)
+      musicInfoOrderDeleteByListIdStatement.run(id)
+    }
+  })(ids)
+}
 
 export const updateMusicInfoOrder = (listId: string, musicInfoOrders: LX.DBService.MusicInfoOrder[]) => {
   const db = getDB()

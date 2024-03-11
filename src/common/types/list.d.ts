@@ -18,6 +18,8 @@ declare namespace LX {
       ids: string[]
     }
 
+    type ListActionMusicClear = string[]
+
     type ListActionMusicUpdate = Array<{
       id: string
       musicInfo: LX.Music.MusicInfo

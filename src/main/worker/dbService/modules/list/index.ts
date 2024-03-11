@@ -10,10 +10,25 @@ import {
   removeMusicInfos,
   updateMusicInfos,
   updateMusicInfoOrder,
+  removeMusicInfoByListId,
 } from './dbHelper'
 let musicLists = new Map<string, LX.Music.MusicInfo[]>()
 
 let userLists: LX.DBService.UserListInfo[]
+
+/**
+ * 清空列表内的歌曲
+ * @param listId 列表Id
+ */
+
+export const musicsClear = (ids: string[]) => {
+  removeMusicInfoByListId(ids)
+  for (const id of ids) {
+    const targetList = musicLists.get(id)
+    if (!targetList) continue
+    targetList.splice(0, targetList.length)
+  }
+}
 
 /**
  * 批量更新列表位置

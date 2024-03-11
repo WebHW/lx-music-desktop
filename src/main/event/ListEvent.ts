@@ -29,6 +29,17 @@ export class Event extends EventEmitter {
   }
 
   /**
+   * 清空列表内的歌曲
+   * @param ids 列表Id
+   * @param isRemote 是否属于远程操作
+  */
+  async list_music_clear(ids: string[], isRemote: boolean = false) {
+    await global.lx.worker.dbService.musicsClear(ids)
+    this.emit('list_music_clear', ids, isRemote)
+    this.list_change()
+  }
+
+  /**
    * 批量移动歌曲
    * @param formId 源列表id
    * @param toId 目标列表id
