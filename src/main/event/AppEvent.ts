@@ -1,12 +1,5 @@
 import { EventEmitter } from 'events'
-import { updateSetting } from '@main/utils'
-// import { saveAppHotKeyConfig, updateSetting } from '@main/utils'
-// function updateSetting(setting: any) {
-//   return {
-//     setting, updatedSettingKeys: [], updatedSetting: {},
-//   }
-// }
-// function saveAppHotKeyConfig(config: any) { console.log(config) }
+import { saveAppHotKeyConfig, updateSetting } from '@main/utils'
 
 export class Event extends EventEmitter {
   // closeAll() {
@@ -42,6 +35,11 @@ export class Event extends EventEmitter {
 
   hot_key_down(keyInfo: LX.HotKeyDownInfo) {
     this.emit('hot_key_down', keyInfo)
+  }
+
+  hot_key_config_update(config: LX.HotKeyConfigAll) {
+    saveAppHotKeyConfig(config)
+    this.emit('hot_key_config_update', config)
   }
 
   updated_config(keys: Array<keyof LX.AppSetting>, setting: Partial<LX.AppSetting>) {

@@ -17,7 +17,7 @@ export default () => {
         case HOTKEY_COMMON.close.action:
           quitApp()
           break
-        case HOTKEY_COMMON.hide_toggle.action
+        case HOTKEY_COMMON.hide_toggle.action:
           toggleHide()
           break
         case HOTKEY_COMMON.min.action:
@@ -30,6 +30,14 @@ export default () => {
           handleKeyDown(type, key)
           break
       }
+    })
+
+    global.lx.event_app.on('hot_key_config_update', config => {
+      hotKeyConfigUpdate(config)
+    })
+
+    global.lx.event_app.on('app_inited', () => {
+      createWindow()
     })
   })
 }

@@ -8,6 +8,7 @@ import { migrateDataJson, migrateHotKey, migrateUserApi, parseDataFile } from '.
 import { nativeTheme } from 'electron'
 import themes from '@common/theme/index.json'
 import { isUrl } from '@common/utils'
+import { throttle } from '@common/utils/common'
 
 export const parseEnvParams = (): { cmdParams: LX.CmdParams, deeplink: string | null } => {
   const cmdParams: LX.CmdParams = {}
@@ -46,6 +47,17 @@ export const copyTheme = (theme: LX.Theme): LX.Theme => {
   }
 }
 
+type HotKeyType = 'local' | 'global'
+
+const saveHotKeyConfig = throttle<[LX.HotKeyConfigAll]>((config: LX.HotKeyConfigAll) => {
+  for (const key of Object.keys(config) as HotKeyType[]) {
+    global.lx.hotKey.config[key] = config[key]
+    getStore(STORE_NAMES.HOTKEY).set(key, config[key])
+  }
+})
+export const saveAppHotKeyConfig = (config: LX.HotKeyConfigAll) => {
+  saveHotKeyConfig(config)
+}
 export const getTheme = () => {
   // fs.promises.readdir()
   const shouldUseDarkColors = nativeTheme.shouldUseDarkColors

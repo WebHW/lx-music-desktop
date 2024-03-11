@@ -19,3 +19,24 @@ export const arrUnshift = <T>(list: T[], newList: T[]) => {
     list.splice(i * 1000, 0, ...newList.slice(i * 1000, (i + 1) * 1000))
   }
 }
+
+
+/**
+ * 生成节流函数
+ * @param fn 回调
+ * @param delay 延迟
+ * @returns
+ */
+
+export function throttle<Args extends any[]>(fn: (...args: Args) => void | Promise<void>, delay = 1000) {
+  let timer: NodeJS.Timeout | null = null
+  let _args: Args
+  return (...args: Args) => {
+    _args = args
+    if (timer) return
+    timer = setTimeout(() => {
+      timer = null
+      void fn(..._args)
+    }, delay)
+  }
+}
