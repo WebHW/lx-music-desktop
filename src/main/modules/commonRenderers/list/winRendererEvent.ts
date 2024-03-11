@@ -31,8 +31,16 @@ export const registerRendererEvents = (sendEvent: <T=any>(name: string, params?:
     sendEvent<LX.List.ListActionMusicMove>(PLAYER_EVENT_NAME.list_music_move, { formId, toId, musicInfos, addMusicLocationType })
   }
 
-  const list_music_remove = async(lsitId: string, ids: string[]) => {
-    sendEvent<LX.List.ListActionMusicRemove>(PLAYER_EVENT_NAME.list_music_remove, { lsitId, ids })
+  const list_music_remove = async(listId: string, ids: string[]) => {
+    sendEvent<LX.List.ListActionMusicRemove>(PLAYER_EVENT_NAME.list_music_remove, { listId, ids })
+  }
+
+  const list_music_update = async(musicInfos: LX.List.ListActionMusicUpdate) => {
+    sendEvent<LX.List.ListActionMusicUpdate>(PLAYER_EVENT_NAME.list_music_update, musicInfos)
+  }
+
+  const list_music_update_position = async(listId: string, ids: string[], position: number) => {
+    sendEvent<LX.List.ListActionMusicUpdatePosition>(PLAYER_EVENT_NAME.list_music_update_position, { listId, position, ids })
   }
 
   global.lx.event_list.on('list_data_overwrite', list_data_overwrite)
@@ -43,6 +51,8 @@ export const registerRendererEvents = (sendEvent: <T=any>(name: string, params?:
   global.lx.event_list.on('list_music_add', list_music_add)
   global.lx.event_list.on('list_music_move', list_music_move)
   global.lx.event_list.on('list_music_remove', list_music_remove)
+  global.lx.event_list.on('list_music_update', list_music_update)
+  global.lx.event_list.on('list_music_update_position', list_music_update_position)
   return () => {
     global.lx.event_list.off('list_data_overwrite', list_data_overwrite)
     global.lx.event_list.off('list_create', list_create)
@@ -52,5 +62,7 @@ export const registerRendererEvents = (sendEvent: <T=any>(name: string, params?:
     global.lx.event_list.off('list_music_add', list_music_add)
     global.lx.event_list.off('list_music_move', list_music_move)
     global.lx.event_list.off('list_music_remove', list_music_remove)
+    global.lx.event_list.off('list_music_update', list_music_update)
+    global.lx.event_list.off('list_music_update_position', list_music_update_position)
   }
 }

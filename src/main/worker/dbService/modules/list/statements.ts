@@ -123,9 +123,23 @@ export const createListUpdateStatement = () => {
  * @returns 删除语句
 */
 
-export const createMusicInfoOrderDeleteByStatement = () => {
+export const createMusicInfoOrderDeleteStatement = () => {
   const db = getDB()
   return db.prepare<[LX.DBService.MusicInfoRemove]>(`
   DELETE FROM "main"."my_list_music_info_order" WHERE "musicInfoId"=@id AND "listId"=@listId'
+  `)
+}
+
+/**
+ * 创建音乐信息更新语句
+ * @returns 更新语句
+*/
+
+export const createMusicInfoUpdateStatement = () => {
+  const db = getDB()
+  return db.prepare<[LX.DBService.MusicInfo]>(`
+    UPDATE "main"."my_list_music_info"
+    SET "name"=@name, "singer"=@singer, "source"=@source, "interval"=@interval,"meta"=@meta,
+    WHERE "id"=@id AND "listId"=@listId
   `)
 }

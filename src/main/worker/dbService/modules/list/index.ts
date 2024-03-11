@@ -1,5 +1,5 @@
 import { LIST_IDS } from '@common/constants'
-import { arrPush, arrUnshift } from '@common/utils/common'
+import { arrPush, arrPushByPosition, arrUnshift } from '@common/utils/common'
 import {
   deleteUserLists,
   overwriteListData,
@@ -8,6 +8,8 @@ import {
   updateUserLists as updateUserListsFromDB,
   insertMusicInfoListAndRefreshOrder,
   removeMusicInfos,
+  updateMusicInfos,
+  updateMusicInfoOrder,
 } from './dbHelper'
 let musicLists = new Map<string, LX.Music.MusicInfo[]>()
 
@@ -112,6 +114,20 @@ export const getListMusics = (listId: string): LX.Music.MusicInfo[] => {
   return targetList
 }
 
+/**
+ * 批量更新歌曲信息
+ * @param musicInfo 歌曲&列表信息
+*/
+export const musicsUpdate = (musicInfos: LX.List.ListActionMusicUpdate) => {
+  updateMusicInfos(musicInfos.map(({ id, musicInfo }) => {
+    return {
+      ...musicInfo,
+      listId: id,
+      meta: JSON.stringify(musicInfo.meta),
+      order: 0,
+    }
+  }))
+}
 
 /**
  * 批量删除歌曲
@@ -218,4 +234,37 @@ export const musicsAdd = (listId: string, musicInfos: LX.Music.MusicInfo[], addM
       arrPush(targetList, musicInfos)
       break
   }
+}
+
+
+/**
+ * 批量更新歌曲位置
+ * @param listId 列表id
+ * @param position 新位置
+ * @param ids 要更新位置的歌曲id
+ */
+export const musicsPositionUpdate = (listId: string, position: number, ids: string[]) => {
+  let targetList = getListMusics(listId)
+  if (!targetList.length) return
+
+  let newTargetList = [...targetList]
+
+  const infos: LX.Music.MusicInfo[] = []
+  const map = new Map<string, LX.Music.MusicInfo>()
+  for (const item of newTargetList) map.set(item.id, item)
+  for (const id of ids) {
+    infos.push(map.get(id) as LX.Music.MusicInfo)
+    map.delete(id)
+  }
+  newTargetList = newTargetList.filter(mInfo => map.has(mInfo.id))
+  arrPushByPosition(newTargetList, infos, Math.min(position, newTargetList.length))
+
+  updateMusicInfoOrder(listId, newTargetList.map((info, index) => {
+    return {
+      listId,
+      musicInfoId: info.id,
+      order: index,
+    }
+  }))
+  musicLists.set(listId, newTargetList)
 }

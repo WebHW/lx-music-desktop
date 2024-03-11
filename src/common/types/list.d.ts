@@ -18,6 +18,17 @@ declare namespace LX {
       ids: string[]
     }
 
+    type ListActionMusicUpdate = Array<{
+      id: string
+      musicInfo: LX.Music.MusicInfo
+    }>
+
+    interface ListActionMusicUpdatePosition {
+      listId: string
+      position: number
+      ids: string[]
+    }
+
     interface MusicInfoMeta_local extends MusicInfoMetaBase {
       filePath: string
       ext: string

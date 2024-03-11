@@ -8,6 +8,7 @@ import {
   createMusicInfoOrderClearStatement,
   createMusicInfoOrderInsertStatement,
   createMusicInfoOrderDeleteStatement,
+  createMusicInfoUpdateStatement,
   createListDeleteStatement,
   createMusicInfoDeleteByListIdStatement,
   createMusicInfoOrderDeleteByListIdStatement,
@@ -16,6 +17,35 @@ import {
 
 
 const idFixRxp = /\.0$/
+/**
+ * 批量更新歌曲位置
+ * @param listId 列表id
+ * @param musicInfoOrders 音乐顺序
+*/
+
+export const updateMusicInfoOrder = (listId: string, musicInfoOrders: LX.DBService.MusicInfoOrder[]) => {
+  const db = getDB()
+  const musicInfoOrderInsertStatement = createMusicInfoOrderInsertStatement()
+  const musicInfoOrderDeleteByListIdStatement = createMusicInfoOrderDeleteByListIdStatement()
+  db.transaction((listId: string, musicInfoOrders: LX.DBService.MusicInfoOrder[]) => {
+    musicInfoOrderDeleteByListIdStatement.run(listId)
+    for (const orderInfo of musicInfoOrders) musicInfoOrderInsertStatement.run(orderInfo)
+  })(listId, musicInfoOrders)
+}
+
+/**
+ * 批量更新歌曲
+ * @param list
+ */
+export const updateMusicInfos = (list: LX.DBService.MusicInfo[]) => {
+  const musicInfoUpdateStatement = createMusicInfoUpdateStatement()
+  const db = getDB()
+  db.transaction((musics: LX.DBService.MusicInfo[]) => {
+    for (const music of musics) {
+      musicInfoUpdateStatement.run(music)
+    }
+  })(list)
+}
 
 /**
  * 批量添加歌曲并刷新排序

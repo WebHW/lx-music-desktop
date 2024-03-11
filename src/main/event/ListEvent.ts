@@ -18,6 +18,17 @@ export class Event extends EventEmitter {
   }
 
   /**
+   * 批量更新歌曲信息
+   * @param musicInfos 歌曲&列表信息
+   * @param isRemote 是否属于远程操作
+  */
+  async list_music_update(musicInfos: LX.List.ListActionMusicUpdate, isRemote: boolean = false) {
+    await global.lx.worker.dbService.musicsUpdate(musicInfos)
+    this.emit('list_music_update', musicInfos, isRemote)
+    this.list_change()
+  }
+
+  /**
    * 批量移动歌曲
    * @param formId 源列表id
    * @param toId 目标列表id
@@ -116,6 +127,19 @@ export class Event extends EventEmitter {
   async list_music_add(listId: string, musicInfos: LX.Music.MusicInfo[], addMusicLocationType: LX.AddMusicLocationType, isRemote: boolean = false) {
     await global.lx.worker.dbService.musicsAdd(listId, musicInfos, addMusicLocationType)
     this.emit('list_music_add', listId, musicInfos, addMusicLocationType, isRemote)
+    this.list_change()
+  }
+
+  /**
+   * 批量更新歌曲位置
+   * @param listId 列表ID
+   * @param position 新位置
+   * @param ids 歌曲id
+   * @param isRemote 是否属于远程操作
+  */
+  async list_music_update_position(listId: string, position: number, ids: string[], isRemote: boolean = false) {
+    await global.lx.worker.dbService.musicsPositionUpdate(listId, position, ids)
+    this.emit('list_music_update_position', listId, position, ids, isRemote)
     this.list_change()
   }
 }
