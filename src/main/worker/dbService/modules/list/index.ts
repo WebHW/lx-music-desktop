@@ -7,6 +7,7 @@ import {
   queryAllUserList, inertUserLists,
   updateUserLists as updateUserListsFromDB,
   insertMusicInfoListAndRefreshOrder,
+  removeMusicInfos,
 } from './dbHelper'
 let musicLists = new Map<string, LX.Music.MusicInfo[]>()
 
@@ -109,6 +110,20 @@ export const getListMusics = (listId: string): LX.Music.MusicInfo[] => {
     musicLists.set(listId, targetList)
   }
   return targetList
+}
+
+
+/**
+ * 批量删除歌曲
+ * @param listId 列表Id
+ * @param ids 要删除歌曲的id
+ */
+export const musicsRemove = (listId: string, ids: string[]) => {
+  let targetList = getListMusics(listId)
+  if (!targetList.length) return
+  removeMusicInfos(listId, ids)
+  const idsSet = new Set(ids)
+  musicLists.set(listId, targetList.filter(info => !idsSet.has(info.id)))
 }
 
 const toDBMusicInfo = (musicInfos: LX.Music.MusicInfo[], listId: string, offset: number = 0): LX.DBService.MusicInfo[] => {

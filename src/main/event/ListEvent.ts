@@ -18,6 +18,20 @@ export class Event extends EventEmitter {
   }
 
   /**
+   * 批量移动歌曲
+   * @param formId 源列表id
+   * @param toId 目标列表id
+   * @param musicInfos 移动的歌曲信息
+   * @param addMusicLocationType 添加在列表的位置
+   * @param isRemote 是否属于远程操作
+  */
+  async list_music_move(formId: string, toId: string, musicInfos: LX.List.MusicInfo[], addMusicLocationType: LX.List.AddMusicLocationType, isRemote: boolean = false) {
+    await global.lx.worker.dbService.MusicMove(formId, toId, musicInfos, addMusicLocationType)
+    this.emit('list_music_move', formId, toId, musicInfos, addMusicLocationType)
+    this.list_change()
+  }
+
+  /**
    * 覆盖整个列表数据
    * @param listData 列表数据
    * @param isRemote 是否属于远程操作
@@ -28,6 +42,20 @@ export class Event extends EventEmitter {
     this.emit('list_data_overwrite', listData, isRemote)
     this.list_change()
   }
+
+  /**
+   * 批量移除歌曲
+   * @param listId 列表Id
+   * @param ids 要删除歌曲的id
+   * @param isRemote 是否属于远程操作
+  */
+  async list_music_remove(listId: string, ids: string[], isRemote: boolean = false) {
+    await global.lx.worker.dbService.musicsRemove(listId, ids)
+    this.emit('list_music_remove', listId, ids, isRemote)
+    this.list_change()
+  }
+
+
   /**
    * 批量创建列表
    * @param position 列表位置

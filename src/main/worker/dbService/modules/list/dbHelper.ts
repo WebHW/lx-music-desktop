@@ -7,6 +7,7 @@ import {
   createMusicInfoQueryStatement,
   createMusicInfoOrderClearStatement,
   createMusicInfoOrderInsertStatement,
+  createMusicInfoOrderDeleteStatement,
   createListDeleteStatement,
   createMusicInfoDeleteByListIdStatement,
   createMusicInfoOrderDeleteByListIdStatement,
@@ -48,6 +49,23 @@ export const insertMusicInfoListAndRefreshOrder = (list: LX.DBService.MusicInfo[
       })
     }
   })(list, listId, listAll)
+}
+
+/**
+ * 批量移除列表内容
+ * @param listId 列表Id
+ * @param ids 音乐id
+*/
+export const removeMusicInfos = (listId: string, ids: string[]) => {
+  const musicInfoDeleteStatement = createMusicInfoClearStatement()
+  const musicInfoOrderDeleteStatement = createMusicInfoOrderDeleteStatement()
+  const db = getDB()
+  db.transaction((listId: string, ids: string[]) => {
+    for (const id of ids) {
+      musicInfoDeleteStatement.run({ listId, id })
+      musicInfoOrderDeleteStatement.run({ listId, id })
+    }
+  })
 }
 
 /**

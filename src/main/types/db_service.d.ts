@@ -16,6 +16,10 @@ declare namespace LX{
       order: number
     }
 
+    interface MusicInfoRemove {
+      listId: string
+      id: string
+    }
     interface UserListInfo {
       id: string
       name: string

@@ -117,3 +117,15 @@ export const createListUpdateStatement = () => {
   WHERE "id"=@id`,
   )
 }
+
+/**
+ * 创建根据列表Id与音乐id删除音乐排序语句
+ * @returns 删除语句
+*/
+
+export const createMusicInfoOrderDeleteByStatement = () => {
+  const db = getDB()
+  return db.prepare<[LX.DBService.MusicInfoRemove]>(`
+  DELETE FROM "main"."my_list_music_info_order" WHERE "musicInfoId"=@id AND "listId"=@listId'
+  `)
+}

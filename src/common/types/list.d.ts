@@ -13,6 +13,37 @@ declare namespace LX {
       // position?: number
       locationUpdateTime: number | null
     }
+    interface ListActionMusicRemove {
+      listId: string
+      ids: string[]
+    }
+
+    interface MusicInfoMeta_local extends MusicInfoMetaBase {
+      filePath: string
+      ext: string
+    }
+
+    interface MusicInfoBase<S=LX.Source> {
+      id: string
+      name: string
+      singer: string
+      source: S
+      interval: string | null
+      meta: MusicInfoMeta_local
+    }
+
+    interface MusicInfoLocal extends MusicInfoBase<'local'> {
+      meta: MusicInfoMeta_local
+    }
+
+    type MusicInfoOnline = MusicInfo_online_common | MusicInfo_kg | MusicInfo_tx | MusicInfo_mg
+    type MusicInfo = MusicInfoOnline | MusicInfoLocal
+    interface ListActionMusicMove {
+      formId: string
+      toId: string
+      musicInfos: LX.Music.MusicInfo[]
+      addMusicLocationType: LX.AddMusicLocationType
+    }
 
     interface ListActionAdd {
       position: number
