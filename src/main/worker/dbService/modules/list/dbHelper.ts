@@ -13,6 +13,7 @@ import {
   createMusicInfoDeleteByListIdStatement,
   createMusicInfoOrderDeleteByListIdStatement,
   createListUpdateStatement,
+  createMusicInfoDeleteStatement,
 } from './statements'
 
 
@@ -87,7 +88,7 @@ export const insertMusicInfoListAndRefreshOrder = (list: LX.DBService.MusicInfo[
  * @param ids 音乐id
 */
 export const removeMusicInfos = (listId: string, ids: string[]) => {
-  const musicInfoDeleteStatement = createMusicInfoClearStatement()
+  const musicInfoDeleteStatement = createMusicInfoDeleteStatement()
   const musicInfoOrderDeleteStatement = createMusicInfoOrderDeleteStatement()
   const db = getDB()
   db.transaction((listId: string, ids: string[]) => {
@@ -95,7 +96,7 @@ export const removeMusicInfos = (listId: string, ids: string[]) => {
       musicInfoDeleteStatement.run({ listId, id })
       musicInfoOrderDeleteStatement.run({ listId, id })
     }
-  })
+  })(listId, ids)
 }
 
 /**

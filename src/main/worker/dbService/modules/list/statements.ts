@@ -1,6 +1,16 @@
 import { getDB } from '../../db'
 
 /**
+ * 创建根据列表Id与音乐id批量删除音乐信息语句
+ * @returns 删除语句
+*/
+export const createMusicInfoDeleteStatement = () => {
+  const db = getDB()
+  return db.prepare<[ LX.DBService.MusicInfoRemove]>(`
+    DELETE FROM "main"."my_list_music_info" WHERE "id"=@id AND "listId"=@listId'
+  `)
+}
+/**
  * 创建音乐信息排序插入语句
  * @returns 插入语句
  */
