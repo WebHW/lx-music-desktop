@@ -1,5 +1,8 @@
 declare namespace LX{
   namespace DBService{
+    interface DislikeInfo {
+      content: string
+    }
     interface MusicInfoOrder {
       listId: string
       musicInfoId: string

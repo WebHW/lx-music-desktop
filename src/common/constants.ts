@@ -25,3 +25,8 @@ export const LIST_IDS = {
   DOWNLOAD: 'download',
   PLAY_LATER: 'null',
 } as const
+
+export const SPLIT_CHAR = {
+  DISLIKE_NAME: '@',
+  DISLIKE_NAME_ALISA: '#',
+} as const

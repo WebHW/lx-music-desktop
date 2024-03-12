@@ -1,6 +1,7 @@
 
 import { registerRendererEvents as common } from '@main/modules/commonRenderers/common'
 import { registerRendererEvents as list } from '@main/modules/commonRenderers/list'
+import { registerRendererEvents as dislike } from '@main/modules/commonRenderers/dislike'
 import { sendEvent } from '../main'
 
 export * from './app'
@@ -12,4 +13,5 @@ export default () => {
   isInitialized = true
   common(sendEvent)
   list(sendEvent)
+  dislike(sendEvent)
 }

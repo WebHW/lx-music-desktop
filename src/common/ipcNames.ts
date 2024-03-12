@@ -43,10 +43,16 @@ const modules = {
     list_music_check_exist: 'list_music_check_exist',
     list_music_get_list_ids: 'list_music_get_list_ids',
   },
-
+  dislike: {
+    get_dislike_music_infos: 'get_dislike_music_infos',
+    add_dislike_music_infos: 'add_dislike_music_infos',
+    overwrite_dislike_music_infos: 'overwrite_dislike_music_infos',
+    clear_dislike_music_infos: 'clear_dislike_music_infos',
+  },
 }
 
 
 export const CMMON_EVENT_NAME = modules.common
 export const PLAYER_EVENT_NAME = modules.player
 export const WIN_MAIN_RENDERER_EVENT_NAME = modules.winMain
+export const DISLIKE_EVENT_NAME = modules.dislike
