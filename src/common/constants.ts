@@ -28,5 +28,5 @@ export const LIST_IDS = {
 
 export const SPLIT_CHAR = {
   DISLIKE_NAME: '@',
-  DISLIKE_NAME_ALISA: '#',
+  DISLIKE_NAME_ALIAS: '#',
 } as const

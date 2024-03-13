@@ -14,19 +14,20 @@ const toDBDislikeInfo = (musicInfos: string[]): LX.DBService.DislikeInfo[] => {
 
 const initDislikeList = () => {
   const dislikeInfo: LX.Dislike.DislikeInfo = {
+    // musicIds: new Set<string>(),
     names: new Set<string>(),
     singerNames: new Set<string>(),
     musicNames: new Set<string>(),
     rules: '',
   }
-  const list = []
+  const list: string[] = []
   for (const item of queryDislikeList()) {
     if (!item) continue
     let [name, singer] = item.content.split(SPLIT_CHAR.DISLIKE_NAME)
     if (name) {
-      name = name.replaceAll(SPLIT_CHAR.DISLIKE_NAME, SPLIT_CHAR.DISLIKE_NAME_ALIAS)
+      name = name.replaceAll(SPLIT_CHAR.DISLIKE_NAME, SPLIT_CHAR.DISLIKE_NAME_ALIAS).toLocaleLowerCase().trim()
       if (singer) {
-        singer = singer.replaceAll(SPLIT_CHAR.DISLIKE_NAME, SPLIT_CHAR.DISLIKE_NAME_ALIAS).toLocalLowerCase().trim()
+        singer = singer.replaceAll(SPLIT_CHAR.DISLIKE_NAME, SPLIT_CHAR.DISLIKE_NAME_ALIAS).toLocaleLowerCase().trim()
         const rule = `${name}${SPLIT_CHAR.DISLIKE_NAME}${singer}`
         dislikeInfo.names.add(rule)
         list.push(rule)
@@ -40,9 +41,12 @@ const initDislikeList = () => {
       list.push(`${SPLIT_CHAR.DISLIKE_NAME}${singer}`)
     }
   }
+
   dislikeInfo.rules = Array.from(new Set(list)).join('\n')
+
   return dislikeInfo
 }
+
 
 /**
  * 获取不喜欢列表信息
