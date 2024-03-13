@@ -170,3 +170,8 @@ export const showDialog = async({ type, message, detail }: Electron.MessageBoxOp
     detail,
   })
 }
+
+export const showSaveDialog = async(options: Electron.SaveDialogOptions) => {
+  if (!browserWindow) throw new Error('main window is undefined')
+  return dialog.showSaveDialog(browserWindow, options)
+}

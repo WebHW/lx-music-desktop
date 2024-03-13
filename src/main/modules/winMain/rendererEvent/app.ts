@@ -13,6 +13,7 @@ import {
   showSelectDialog,
   showDialog,
   sendEvent,
+  showSaveDialog,
 } from '@main/modules/winMain'
 
 export default () => {
@@ -56,6 +57,11 @@ export default () => {
   // 显示弹窗信息
   mainOn<Electron.MessageBoxSyncOptions>(WIN_MAIN_RENDERER_EVENT_NAME.show_dialog, ({ params }) => {
     showDialog(params)
+  })
+
+  // 显示保存弹窗
+  mainHandle<Electron.SaveDialogOptions, Electron.SaveDialogReturnValue>(WIN_MAIN_RENDERER_EVENT_NAME.show_save_dialog, async({ params }) => {
+    return showSaveDialog(params)
   })
 }
 
