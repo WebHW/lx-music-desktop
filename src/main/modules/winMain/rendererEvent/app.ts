@@ -3,8 +3,16 @@ import { mainHandle, mainOn } from '@common/mainIpc'
 import { quitApp } from '@main/app'
 import { WIN_MAIN_RENDERER_EVENT_NAME } from '@common/ipcNames'
 import {
-  maximize, minimize,
-  setFullScreen, showWindow, toggleHide, toggleMinimize, closeWindow,
+  maximize,
+  minimize,
+  setFullScreen,
+  showWindow,
+  toggleHide,
+  toggleMinimize,
+  closeWindow,
+  showSelectDialog,
+  showDialog,
+  sendEvent,
 } from '@main/modules/winMain'
 
 export default () => {
@@ -40,4 +48,25 @@ export default () => {
     global.lx.event_app.main_window_fullscreen(isFullScreen)
     return setFullScreen(isFullScreen)
   })
+  // 选择目录
+  mainHandle<Electron.OpenDialogOptions, Electron.OpenDialogReturnValue>(WIN_MAIN_RENDERER_EVENT_NAME.show_select_dialog, async({ params: option }) => {
+    return showSelectDialog(option)
+  })
+
+  // 显示弹窗信息
+  mainOn<Electron.MessageBoxSyncOptions>(WIN_MAIN_RENDERER_EVENT_NAME.show_dialog, ({ params }) => {
+    showDialog(params)
+  })
+}
+
+
+export const sendFocus = () => {
+  sendEvent(WIN_MAIN_RENDERER_EVENT_NAME.focus)
+}
+
+export const sendTaskbarButtonClick = (action: LX.Player.StatusButtonActions) => {
+  sendEvent(WIN_MAIN_RENDERER_EVENT_NAME.player_action_on_button_click, action)
+}
+export const sendConfigChange = (setting: Partial<LX.AppSetting>) => {
+  sendEvent(WIN_MAIN_RENDERER_EVENT_NAME.on_config_change, setting)
 }

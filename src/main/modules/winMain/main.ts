@@ -1,4 +1,4 @@
-import { BrowserWindow, session } from 'electron'
+import { BrowserWindow, dialog, session } from 'electron'
 import { isLinux, isWin } from '@common/utils'
 import { getWindowSizeInfo } from './utils'
 import { openDevTools as handleOpenDevTools } from '@main/utils'
@@ -156,4 +156,17 @@ export const setFullScreen = (isFullScreen: boolean): boolean => {
     browserWindow.setFullScreen(isFullScreen)
   }
   return isFullScreen
+}
+
+export const showSelectDialog = async(options: Electron.OpenDialogOptions) => {
+  if (!browserWindow) throw new Error('main window is undefined')
+  return dialog.showOpenDialog(browserWindow, options)
+}
+export const showDialog = async({ type, message, detail }: Electron.MessageBoxOptions) => {
+  if (!browserWindow) return
+  dialog.showMessageBoxSync(browserWindow, {
+    type,
+    message,
+    detail,
+  })
 }
