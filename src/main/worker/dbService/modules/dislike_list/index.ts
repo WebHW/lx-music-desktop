@@ -1,5 +1,5 @@
 import { SPLIT_CHAR } from '@common/constants'
-import { queryDislikeList } from './dbHelper'
+import { queryDislikeList, inertDislikeList } from './dbHelper'
 
 const toDBDislikeInfo = (musicInfos: string[]): LX.DBService.DislikeInfo[] => {
   const list: LX.DBService.DislikeInfo[] = []
@@ -53,4 +53,12 @@ export const getDislikeListInfo = (): LX.Dislike.DislikeInfo => {
   return initDislikeList()
 }
 
+
+/**
+ * 添加信息
+ * @param lists 列表信息
+*/
+export const dislikeInfoAdd = async(lists: LX.Dislike.DislikeMusicInfo[]) => {
+  await inertDislikeList(lists.map(info => ({ content: `${info.name}${SPLIT_CHAR.DISLIKE_NAME}${info.singer}` })))
+}
 

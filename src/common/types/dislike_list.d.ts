@@ -8,5 +8,9 @@ declare namespace LX {
       singerNames: Set<string>
       rules: DislikeRules
     }
+    interface DislikeMusicInfo {
+      name: string
+      singer: string
+    }
   }
 }
