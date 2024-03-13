@@ -141,3 +141,19 @@ export const isShowWindow = (): boolean => {
   if (!browserWindow) return false
   return browserWindow.isVisible() && (isWin ? true : browserWindow.isFocused())
 }
+
+export const setFullScreen = (isFullScreen: boolean): boolean => {
+  if (!browserWindow) return false
+  if (isLinux) {
+    if (isFullScreen) {
+      browserWindow.setResizable(isFullScreen)
+      browserWindow.setFullScreen(isFullScreen)
+    } else {
+      browserWindow.setFullScreen(isFullScreen)
+      browserWindow.setResizable(isFullScreen)
+    }
+  } else {
+    browserWindow.setFullScreen(isFullScreen)
+  }
+  return isFullScreen
+}
