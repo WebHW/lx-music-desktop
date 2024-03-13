@@ -8,6 +8,9 @@ export default () => {
     return global.lx.worker.dbService.getDislikeListInfo()
   })
   mainHandle<LX.Dislike.DislikeMusicInfo[]>(DISLIKE_EVENT_NAME.add_dislike_music_infos, async({ params: listData }) => {
-    await global.lx.worker.dbService.dislike_music_add(listData, false)
+    await global.lx.event_dislike.dislike_music_add(listData, false)
+  })
+  mainHandle<LX.Dislike.DislikeRules[]>(DISLIKE_EVENT_NAME.overwrite_dislike_music_infos, async({ params: rules }) => {
+    await global.lx.event_dislike.dislike_data_overwrite(rules, false)
   })
 }

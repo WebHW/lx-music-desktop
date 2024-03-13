@@ -19,6 +19,17 @@ export class Event extends EventEmitter {
     this.emit('dislike_music_add', musicInfo, isRemote)
     this.dislike_changed()
   }
+
+  /**
+   * 覆盖整个列表数据
+   * @param dislikeData 列表数据
+   * @param isRemote 是否属于远程操作
+  */
+  async dislike_data_overwrite(dislikeData: LX.Dislike.DislikeRules, isRemote: boolean = false) {
+    await global.lx.worker.dbService.dislikeInfoOverwrite(dislikeData)
+    this.emit('dislike_data_overwrite', dislikeData, isRemote)
+    this.dislike_changed()
+  }
 }
 
 
