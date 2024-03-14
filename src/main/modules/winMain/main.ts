@@ -1,9 +1,9 @@
 import { BrowserWindow, dialog, session } from 'electron'
 import { isLinux, isWin } from '@common/utils'
-import { getWindowSizeInfo } from './utils'
+import { getWindowSizeInfo, createTaskBarButtons } from './utils'
 import { openDevTools as handleOpenDevTools } from '@main/utils'
 import path from 'node:path'
-import { sendFocus } from './rendererEvent'
+import { sendFocus, sendTaskbarButtonClick } from './rendererEvent'
 import { mainSend } from '@common/mainIpc'
 import { encodePath } from '@common/utils/electron'
 
@@ -174,4 +174,59 @@ export const showDialog = async({ type, message, detail }: Electron.MessageBoxOp
 export const showSaveDialog = async(options: Electron.SaveDialogOptions) => {
   if (!browserWindow) throw new Error('main window is undefined')
   return dialog.showSaveDialog(browserWindow, options)
+}
+
+export const clearCache = async() => {
+  if (!browserWindow) throw new Error('main window is undefined')
+  await browserWindow.webContents.session.clearCache()
+}
+
+export const getCacheSize = async() => {
+  if (!browserWindow) throw new Error('main window is undefined')
+  return browserWindow.webContents.session.getCacheSize()
+}
+export const getWebContents = (): Electron.WebContents => {
+  if (!browserWindow) throw new Error('main window is undefined')
+  return browserWindow.webContents
+}
+
+export const toggleDevTools = () => {
+  if (!browserWindow) return
+  if (browserWindow.webContents.isDevToolsOpened()) {
+    browserWindow.webContents.closeDevTools()
+  } else {
+    handleOpenDevTools(browserWindow.webContents)
+  }
+}
+
+export const setWindowBounds = (options: Partial<Electron.Rectangle>) => {
+  if (!browserWindow) return
+  browserWindow.setBounds(options)
+}
+export const setProgressBar = (progress: number, options?: Electron.ProgressOptions) => {
+  if (!browserWindow) return
+  browserWindow.setProgressBar(progress, options)
+}
+
+export const setIngoreMouseEvents = (ignore: boolean, options?: Electron.IgnoreMouseEventsOptions) => {
+  if (!browserWindow) return
+  browserWindow.setIgnoreMouseEvents(ignore, options)
+}
+const taskBarButtonFlags: LX.TaskBarButtonFlags = {
+  empty: true,
+  collect: false,
+  play: false,
+  next: true,
+  prev: true,
+}
+export const setThumbarButtons = ({ empty, collect, play, next, prev }: LX.TaskBarButtonFlags = taskBarButtonFlags) => {
+  if (!isWin || !browserWindow) return
+  taskBarButtonFlags.empty = empty
+  taskBarButtonFlags.collect = collect
+  taskBarButtonFlags.play = play
+  taskBarButtonFlags.next = next
+  taskBarButtonFlags.prev = prev
+  browserWindow.setThumbarButtons(createTaskBarButtons(taskBarButtonFlags, action => {
+    sendTaskbarButtonClick(action)
+  }))
 }

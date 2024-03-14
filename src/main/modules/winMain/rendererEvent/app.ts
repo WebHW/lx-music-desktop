@@ -14,6 +14,13 @@ import {
   showDialog,
   sendEvent,
   showSaveDialog,
+  clearCache,
+  getCacheSize,
+  toggleDevTools,
+  setWindowBounds,
+  setProgressBar,
+  setIngoreMouseEvents,
+  setThumbarButtons,
 } from '@main/modules/winMain'
 
 export default () => {
@@ -62,6 +69,38 @@ export default () => {
   // 显示保存弹窗
   mainHandle<Electron.SaveDialogOptions, Electron.SaveDialogReturnValue>(WIN_MAIN_RENDERER_EVENT_NAME.show_save_dialog, async({ params }) => {
     return showSaveDialog(params)
+  })
+
+  mainHandle(WIN_MAIN_RENDERER_EVENT_NAME.clear_cache, async() => {
+    await clearCache()
+  })
+
+  mainHandle<number>(WIN_MAIN_RENDERER_EVENT_NAME.get_cache_size, async() => {
+    return getCacheSize()
+  })
+
+  mainOn(WIN_MAIN_RENDERER_EVENT_NAME.open_dev_tools, () => {
+    toggleDevTools()
+  })
+
+  mainOn<Partial<Electron.Rectangle>>(WIN_MAIN_RENDERER_EVENT_NAME.set_window_size, ({ params }) => {
+    setWindowBounds(params)
+  })
+
+  mainOn<LX.Player.ProgressBarOptions>(WIN_MAIN_RENDERER_EVENT_NAME.progress, ({ params }) => {
+    setProgressBar(params.progress, {
+      mode: params.mode ?? 'normal',
+    })
+  })
+
+  mainOn<boolean>(WIN_MAIN_RENDERER_EVENT_NAME.set_ignore_mouse_events, ({ params: isIgnore }) => {
+    isIgnore
+      ? setIngoreMouseEvents(isIgnore, { forward: true })
+      : setIngoreMouseEvents(false)
+  })
+
+  mainOn<LX.TaskBarButtonFlags>(WIN_MAIN_RENDERER_EVENT_NAME.player_action_set_buttons, ({ params }) => {
+    setThumbarButtons(params)
   })
 }
 
