@@ -15,3 +15,8 @@ export const loadApi = async(apiId: string) => {
   userApi = targetApi
   await createWindow(userApi)
 }
+
+export const setAllowShowUpdateAlert = (id: string, enable: boolean) => {
+  if (!userApi || userApi.id != id) return
+  userApi.allowShowUpdateAlert = enable
+}

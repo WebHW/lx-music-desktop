@@ -21,6 +21,11 @@ declare namespace LX {
       allowShowUpdateAlert: boolean
       sources?: UserApiSources
     }
+
+    interface UserApiSetAllowUpdateAlertParams {
+      id: string
+      enable: boolean
+    }
     interface UserApiStatus {
       status: boolean
       message?: string

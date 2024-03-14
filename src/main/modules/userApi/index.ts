@@ -1,6 +1,7 @@
 import { closeWindow } from './main'
-import { getUserApis, importApi as handleImportApi, removeApi as handleRemoveApi } from './utils'
-import { loadApi } from './rendererEvent/rendererEvent'
+import { getUserApis, importApi as handleImportApi, removeApi as handleRemoveApi, setAllowShowUpdateAlert as saveAllowShowUpdateAlert } from './utils'
+import { loadApi, setAllowShowUpdateAlert as setRendererEventAllowShowUpdateAlert } from './rendererEvent/rendererEvent'
+
 let userApiId: string | null
 let apiStatus: LX.UserApi.UserApiStatus = { status: true }
 
@@ -35,3 +36,8 @@ export const setApi = async(id: string) => {
 }
 
 export const getStatus = (): LX.UserApi.UserApiStatus => apiStatus
+
+export const setAllowShowUpdateAlert = (id: string, enable: boolean) => {
+  saveAllowShowUpdateAlert(id, enable)
+  setRendererEventAllowShowUpdateAlert(id, enable)
+}
