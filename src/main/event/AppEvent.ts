@@ -25,6 +25,10 @@ export class Event extends EventEmitter {
     this.emit('system_theme_change', isDark)
   }
 
+  main_window_inited() {
+    this.emit('main_window_inited')
+  }
+
 
   main_window_fullscreen(isFullscreen: boolean) {
     this.emit('main_window_fullscreen', isFullscreen)

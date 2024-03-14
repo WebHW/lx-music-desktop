@@ -22,6 +22,9 @@ import {
   setIngoreMouseEvents,
   setThumbarButtons,
 } from '@main/modules/winMain'
+import {
+  getAllThemes, saveTheme, removeTheme,
+} from '@main/utils'
 
 export default () => {
   mainOn(WIN_MAIN_RENDERER_EVENT_NAME.quit, () => {
@@ -101,6 +104,20 @@ export default () => {
 
   mainOn<LX.TaskBarButtonFlags>(WIN_MAIN_RENDERER_EVENT_NAME.player_action_set_buttons, ({ params }) => {
     setThumbarButtons(params)
+  })
+
+  mainOn(WIN_MAIN_RENDERER_EVENT_NAME.inited, () => {
+    global.lx.event_app.main_window_inited()
+  })
+
+  mainHandle<{ themes: LX.Theme[], userTheme: LX.Theme[] }>(WIN_MAIN_RENDERER_EVENT_NAME.get_themes, async() => {
+    return getAllThemes()
+  })
+  mainHandle<LX.Theme>(WIN_MAIN_RENDERER_EVENT_NAME.save_theme, async({ params: theme }) => {
+    saveTheme(theme)
+  })
+  mainHandle<string>(WIN_MAIN_RENDERER_EVENT_NAME.remove_theme, async({ params: id }) => {
+    removeTheme(id)
   })
 }
 

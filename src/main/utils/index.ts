@@ -9,6 +9,7 @@ import { nativeTheme } from 'electron'
 import themes from '@common/theme/index.json'
 import { isUrl } from '@common/utils'
 import { throttle } from '@common/utils/common'
+import { joinPath } from '@common/utils/nodejs'
 
 export const parseEnvParams = (): { cmdParams: LX.CmdParams, deeplink: string | null } => {
   const cmdParams: LX.CmdParams = {}
@@ -35,6 +36,28 @@ export const parseEnvParams = (): { cmdParams: LX.CmdParams, deeplink: string | 
 }
 
 let userThemes: LX.Theme[]
+export const getAllThemes = () => {
+  userThemes ??= getStore(STORE_NAMES.THEME).get('themes') as (LX.Theme[] | null) ?? []
+  return {
+    themes,
+    userThemes,
+    dataPath: joinPath(global.lxDataPath, 'theme_images'),
+  }
+}
+
+export const saveTheme = (theme: LX.Theme) => {
+  const targetTheme = userThemes.find(item => item.id === theme.id)
+  if (targetTheme)Object.assign(targetTheme, theme)
+  else userThemes.push(theme)
+  getStore(STORE_NAMES.THEME).set('themes', userThemes)
+}
+
+export const removeTheme = (theme: LX.Theme) => {
+  const index = userThemes.findIndex(item => item.id === theme.id)
+  if (index < 0) return
+  userThemes.splice(index, 1)
+  getStore(STORE_NAMES.THEME).set('themes', userThemes)
+}
 
 export const copyTheme = (theme: LX.Theme): LX.Theme => {
   return {
@@ -197,3 +220,5 @@ export const updateSetting = (setting?: Partial<LX.AppSetting>, isInit: boolean 
   electronStore_config.set({ version: result.setting.version, setting: result.setting })
   return result
 }
+
+
