@@ -3,6 +3,10 @@ import { registerRendererEvents as common } from '@main/modules/commonRenderers/
 import { registerRendererEvents as list } from '@main/modules/commonRenderers/list'
 import { registerRendererEvents as dislike } from '@main/modules/commonRenderers/dislike'
 import { sendEvent } from '../main'
+import hotKey from './hotKey'
+
+import userApi from './userApi'
+import app, { sendConfigChange } from './app'
 
 export * from './app'
 export * from './hotKey'
@@ -14,4 +18,9 @@ export default () => {
   common(sendEvent)
   list(sendEvent)
   dislike(sendEvent)
+  app()
+  hotKey()
+  global.lx.event_app.on('updated_config', (keys, setting) => {
+    sendConfigChange(setting)
+  })
 }
