@@ -11,13 +11,20 @@ declare namespace LX {
     }
 
     type UserApiSources = Record<LX.Source, UserApiSourceInfo>
+    type UserApiSetApiParams = string
+
     interface UserApiInfo {
       id: string
       name: string
-      descriptions: string
+      description: string
       script: string
       allowShowUpdateAlert: boolean
       sources?: UserApiSources
+    }
+    interface UserApiStatus {
+      status: boolean
+      message?: string
+      apiInfo?: UserApiInfo
     }
 
     interface ImportUserApi {

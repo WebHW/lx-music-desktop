@@ -10,6 +10,7 @@ import app, { sendConfigChange } from './app'
 
 export * from './app'
 export * from './hotKey'
+export * from './userApi'
 
 let isInitialized = false
 export default () => {
@@ -20,6 +21,7 @@ export default () => {
   dislike(sendEvent)
   app()
   hotKey()
+  userApi()
   global.lx.event_app.on('updated_config', (keys, setting) => {
     sendConfigChange(setting)
   })
