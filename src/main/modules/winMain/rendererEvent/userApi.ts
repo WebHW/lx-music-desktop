@@ -4,6 +4,8 @@ import {
   importApi,
   removeApi,
   setApi,
+  getApiList,
+  getStatus,
 } from '@main/modules/userApi'
 import { sendEvent } from '@main/modules/winMain/main'
 
@@ -18,6 +20,12 @@ export default () => {
 
   mainHandle<LX.UserApi.UserApiSetApiParams>(WIN_MAIN_RENDERER_EVENT_NAME.set_user_api, async({ params: apiId }) => {
     return setApi(apiId)
+  })
+  mainHandle<LX.UserApi.UserApiInfo[]>(WIN_MAIN_RENDERER_EVENT_NAME.get_user_api_list, async() => {
+    return getApiList()
+  })
+  mainHandle<LX.UserApi.UserApiStatus>(WIN_MAIN_RENDERER_EVENT_NAME.get_user_api_status, async() => {
+    return getStatus()
   })
 }
 
