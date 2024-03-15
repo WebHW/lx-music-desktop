@@ -32,6 +32,9 @@ declare namespace LX {
       data: any
     }
 
+    type UserApiRequestCancelParams = string
+    type UserApiSetApiParams = string
+
     interface UserApiStatus {
       status: boolean
       message?: string
@@ -41,6 +44,13 @@ declare namespace LX {
     interface ImportUserApi {
       apiInfo: UserApiInfo
       apiList: UserApiInfo[]
+    }
+
+    interface UserApiUpdateInfo {
+      name: string
+      dsicription: string
+      log: string
+      updateUrl?: string
     }
   }
 }

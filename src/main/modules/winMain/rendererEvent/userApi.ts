@@ -6,6 +6,7 @@ import {
   setApi,
   getApiList,
   request,
+  cancelRequest,
   getStatus,
   setAllowShowUpdateAlert,
 } from '@main/modules/userApi'
@@ -29,17 +30,22 @@ export default () => {
   mainHandle<LX.UserApi.UserApiStatus>(WIN_MAIN_RENDERER_EVENT_NAME.get_user_api_status, async() => {
     return getStatus()
   })
-  
   mainHandle<LX.UserApi.UserApiSetAllowUpdateAlertParams>(WIN_MAIN_RENDERER_EVENT_NAME.user_api_set_allow_update_alert, async({ params: { id, enable } }) => {
     setAllowShowUpdateAlert(id, enable)
   })
 
-
   mainHandle<LX.UserApi.UserApiRequestParams>(WIN_MAIN_RENDERER_EVENT_NAME.request_user_api, async({ params }) => {
     return request(params)
+  })
+  mainHandle<LX.UserApi.UserApiRequestCancelParams>(WIN_MAIN_RENDERER_EVENT_NAME.request_user_api_cancel, async({ params: requestKey }) => {
+    cancelRequest(requestKey)
   })
 }
 
 export const sendStatusChange = (status: LX.UserApi.UserApiStatus) => {
   sendEvent(WIN_MAIN_RENDERER_EVENT_NAME.user_api_status, status)
+}
+
+export const sendShowUpdateAlert = (info: LX.UserApi.UserApiUpdateInfo) => {
+  sendEvent(WIN_MAIN_RENDERER_EVENT_NAME.user_api_show_update_alert, info)
 }
