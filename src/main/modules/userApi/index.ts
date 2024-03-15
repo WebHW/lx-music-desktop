@@ -41,3 +41,6 @@ export const setAllowShowUpdateAlert = (id: string, enable: boolean) => {
   saveAllowShowUpdateAlert(id, enable)
   setRendererEventAllowShowUpdateAlert(id, enable)
 }
+
+
+export * from './rendererEvent/rendererEvent'

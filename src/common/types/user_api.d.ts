@@ -26,6 +26,12 @@ declare namespace LX {
       id: string
       enable: boolean
     }
+
+    interface UserApiRequestParams {
+      requestKey: string
+      data: any
+    }
+
     interface UserApiStatus {
       status: boolean
       message?: string
